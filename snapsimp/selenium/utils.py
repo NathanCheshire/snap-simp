@@ -1,6 +1,6 @@
 from typing import  List, Tuple
 from bs4 import BeautifulSoup
-from snapsimp.objects.snap import Snap, SnapType
+from snapsimp.snaps.snap import Snap, SnapType
 from snapsimp.selenium.table_elements import TableElements
 
 # The number of columns the Snap History Metadata html page includes.

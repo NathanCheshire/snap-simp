@@ -1,7 +1,7 @@
 import argparse
 from typing import Dict, List, Set, Tuple
 from collections import Counter
-from snapsimp.objects.snap import Snap, SnapType
+from snapsimp.snaps.snap import Snap, SnapType
 from snapsimp.selenium.utils import extract_snap_history
 
 def compute_sender_frequency(snaps: List[Snap]) -> Dict[str, int]:
