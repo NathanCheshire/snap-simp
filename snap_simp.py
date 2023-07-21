@@ -4,13 +4,19 @@ from bs4 import BeautifulSoup
 from collections import Counter
 from snap import Snap, SnapType
 
-# The number of columns the Snap History Metadata html page includes
+# The number of columns the Snap History Metadata html page includes.
 SNAP_HISTORY_NUM_TABLE_COLUMNS = 3
-MIN_TABLES = 2
+
+# The amount of tables the HTML document should contain.
+NUM_TABLES = 2
 RECEIVED_SNAPS_TABLE_INDEX = 0
 SENT_SNAPS_TABLE_INDEX = 1
 
-# Tags for document traversal
+SENDER_COLUMN_INDEX = 0
+TYPE_COLUMN_INDEX = 1
+TIMESTAMP_COLUMN_INDEX = 2
+
+# Tags for document traversal, todo enum?
 BODY = 'body'
 TABLE = 'table'
 TABLE_ROW = 'tr'
@@ -32,9 +38,9 @@ def parse_snap_history_table(table: BeautifulSoup) -> List[Snap]:
         if len(columns) < SNAP_HISTORY_NUM_TABLE_COLUMNS:
             continue
 
-        sender = columns[0].get_text()
-        snap_type = SnapType.IMAGE if columns[1].get_text() == 'IMAGE' else SnapType.VIDEO
-        timestamp = columns[2].get_text()
+        sender = columns[SENDER_COLUMN_INDEX].get_text()
+        snap_type = SnapType.IMAGE if columns[TYPE_COLUMN_INDEX].get_text() == 'IMAGE' else SnapType.VIDEO
+        timestamp = columns[TIMESTAMP_COLUMN_INDEX].get_text()
         snaps.append(Snap(sender, snap_type, timestamp))
 
     return snaps
@@ -55,8 +61,8 @@ def extract_snap_history(filename: str) -> Tuple[List[Snap], List[Snap]]:
 
     tables = soup.find_all(TABLE)
 
-    if len(tables) < MIN_TABLES: 
-        print(f"Error: Less than {MIN_TABLES} tables found in {filename}")
+    if len(tables) != NUM_TABLES: 
+        print(f"Error: A table amount not equal to {NUM_TABLES} tables found in {filename}; num tables: {len(tables)}")
         return [], []
 
     received_snaps = parse_snap_history_table(tables[RECEIVED_SNAPS_TABLE_INDEX])
@@ -118,24 +124,64 @@ def get_snaps_by_user(snaps: List[Snap], username: str) -> List[Snap]:
     """
     return [snap for snap in snaps if snap.sender == username]
 
-def get_top_sender_to_me_and_top_person_I_send_to(received_snaps: List[Snap], sent_snaps: List[Snap]):
+def get_top_username(snaps: List[Snap]) -> str:
     """
-    Returns the username of the person who sends the most snaps to you and the username of the person you
-    send the most snaps to.
+    Returns the username of the person whos name appears on the most snaps of the provided list.
 
-    :param received_snaps: the list of received snaps
-    :param sent_snaps: the list of sent snaps
-    :return: a tuple containing the top sender to you and the top person you send snaps to
+    :param snaps: the list of snaps
+    :return: the username of the person whos name appears on the most snaps
     """
 
-    received_frequency = compute_sender_frequency(received_snaps)
-    sent_frequency = compute_sender_frequency(sent_snaps)
+    frequency = compute_sender_frequency(snaps)
+    return next(iter(frequency))
 
-    top_sender_to_me = next(iter(received_frequency))
-    top_person_I_send_to = next(iter(sent_frequency))
+def get_snaps_by_top_username(snaps: List[Snap]) -> List[Snap]:
+    """
+    Returns a subset of the provided list of snaps containing only the snaps to/from the highest receiver/sender.
 
-    return top_sender_to_me, top_person_I_send_to
+    :param snaps: the list of snaps
+    :return: a list of snaps containing the snaps to/from the top receiver/sender. If the provided list was snaps
+    received by you, the subset would contain the snaps sent from the person who snaps you the most. If the provided
+    list was snaps sent by you, the subset would contain the snaps received from the person who you snap the most.
+    """
+    top_user = get_top_username(snaps)
+    return get_snaps_by_user(snaps, top_user)
 
+def filter_snaps_by_type(snaps: List[Snap]) -> Tuple[List[Snap], List[Snap]]:
+    """
+    Separates a list of Snap objects into two lists: one for images and one for videos.
+
+    :param snaps: A list of Snap objects
+    :return: A tuple containing two lists of Snap objects: the first for image snaps and the second for video snaps
+    """
+    image_snaps = [snap for snap in snaps if snap.type == SnapType.IMAGE]
+    video_snaps = [snap for snap in snaps if snap.type == SnapType.VIDEO]
+
+    return image_snaps, video_snaps
+
+def get_image_to_video_ratio_by_username(snaps: List[Snap], username: str) -> float:
+    """
+    Returne the image to video snap ratio of the provided username.
+
+    :param snaps: the list of snaps
+    :param username: the username to return the image to video snap ratio of from within the provided snaps list.
+    """
+
+    snaps_from_user = get_snaps_by_user(snaps, username)
+    image_snaps, video_snaps = filter_snaps_by_type(snaps_from_user)
+    return len(image_snaps) / len(video_snaps)
+
+def get_image_to_video_ratio_by_top_username(snaps: List[Snap]) -> float:
+    """
+    Returns the image to video snap ratio of the user with the most snaps of the provided list.
+
+    :param snaps: the list of snaps
+    :return: the image to video snap ratio of the user with the most snaps in the list. For example,
+    if this was the snaps you received, this would return the ratio of image to video snaps of the person
+    who sent you the most snaps
+    """
+
+    return get_image_to_video_ratio_by_username(snaps, get_top_username(snaps))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='A parser for Snapchat data exports')
@@ -144,8 +190,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     received, sent = extract_snap_history(args.file) 
-    top_sender, top_receiver = get_top_sender_to_me_and_top_person_I_send_to(received, sent)
-    snaps_from_top_sender = get_snaps_by_user(received, top_sender)
-    snaps_to_top_receiver = get_snaps_by_user(sent, top_receiver)
-
-    print(snaps_from_top_sender)
+    top_sender_snaps = get_snaps_by_top_username(received)
+    image_snaps, video_snaps = filter_snaps_by_type(top_sender_snaps)
+   
+    print(get_image_to_video_ratio_by_top_username(received))
