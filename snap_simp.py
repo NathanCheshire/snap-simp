@@ -1,32 +1,86 @@
+from typing import Dict, List, Tuple
 from bs4 import BeautifulSoup
+from collections import Counter
+from snap import Snap, SnapType
 
-from snap import Snap
+# The number of columns the Snap History Metadata html page includes
+SNAP_HISTORY_NUM_TABLE_COLUMNS = 3
+MIN_TABLES = 2
+RECEIVED_SNAPS_TABLE_INDEX = 0
+SENT_SNAPS_TABLE_INDEX = 1
 
-def get_snaps_from_snap_history_html_file(relative_file_name: str):
-    with open(relative_file_name, 'r') as f:
-        html_content = f.read()
+# Tags for document traversal
+BODY = 'body'
+TABLE = 'table'
+TABLE_ROW = 'tr'
+TABLE_DATA_CELL = 'td'
 
-    soup = BeautifulSoup(html_content, 'html.parser')
-    body = soup.find('body')
-    table = soup.find('table')
+def parse_snap_history_table(table):
     snaps = []
+    if not table:
+        return snaps
 
-    rows = table.find_all('tr')
+    rows = table.find_all(TABLE_ROW)
 
     for row in rows:
-        cols = row.find_all('td')
+        columns = row.find_all(TABLE_DATA_CELL)
 
-        # Make sure there are exactly 3 columns
-        if len(cols) == 3:
-            # Create a new Snap object and add it to the list
-            snap = Snap(cols[0].text, cols[1].text, cols[2].text)
-            snaps.append(snap)
+        if len(columns) < SNAP_HISTORY_NUM_TABLE_COLUMNS:
+            continue
 
-    # Print all the snaps
-    for snap in snaps:
-        print(snap)
+        sender = columns[0].get_text()
+        snap_type = SnapType.IMAGE if columns[1].get_text() == 'IMAGE' else SnapType.VIDEO
+        timestamp = columns[2].get_text()
+        snaps.append(Snap(sender, snap_type, timestamp))
+
+    return snaps
+
+
+def extract_snap_history(filename: str) -> Tuple[List[Snap], List[Snap]]:
+    """
+    Extracts the snap history, both sent and received snaps, from the provided snap history html file.
+    This file is expected to have two and only two tables, the first should be the received snaps table
+    and the second should be the sent snaps table.
+
+    :param filename: the path to the local html file.
+    :returns: two lists of snap objects, the first is the received snaps, the second is the sent snaps
+    """
+
+    with open(filename, 'r') as file:
+        soup = BeautifulSoup(file.read(), 'html.parser')
+
+    tables = soup.find_all(TABLE)
+
+    if len(tables) < MIN_TABLES: 
+        print(f"Error: Less than {MIN_TABLES} tables found in {filename}")
+        return [], []
+
+    received_snaps = parse_snap_history_table(tables[RECEIVED_SNAPS_TABLE_INDEX])
+    sent_snaps = parse_snap_history_table(tables[SENT_SNAPS_TABLE_INDEX])
+
+    return received_snaps, sent_snaps
+
+
+
+def compute_sender_frequency(snaps: List[Snap]) -> Dict[str, int]:
+    """
+    Computes and returns a dictionary detailing the frequency of a particular sender/receiver.
+
+    Example returned schema:
+    {
+        "mybestfriend": 143,
+        "mysister": 22,
+        "mycousin": 15
+    }
+    """
+
+    username_counts = Counter([snap.sender for snap in snaps])
+    username_counts = {k: v for k, v in sorted(username_counts.items(), key=lambda item: item[1], reverse=True)}
+    return username_counts
 
 
 if __name__ == '__main__':
     # todo argparse this but default to this
-    get_snaps_from_snap_history_html_file('snap_history.html') 
+    received, sent = extract_snap_history('html/snap_history.html') 
+    print(compute_sender_frequency(received))
+    print(compute_sender_frequency(sent))
