@@ -90,20 +90,62 @@ def get_unique_usernames(snaps: List[Snap]) -> Set[str]:
     """
     Returns all unique usernames from a list of Snap objects.
 
-    :param snaps: A list of Snap objects.
+    :param snaps: A list of Snap objects
     :return: A set of unique usernames.
     """
 
     unique_usernames = {snap.sender for snap in snaps}
     return unique_usernames
 
+def get_snap_type_frequency(snaps: List[Snap]) -> Dict[SnapType, int]:
+    """
+    Count the number of each type of snap in the given list.
+
+    :param snaps: The list of Snap objects to analyze
+    :return: A dictionary mapping each snap type to its frequency
+    """
+
+    type_counts = Counter([snap.type for snap in snaps])
+    return type_counts
+
+def get_snaps_by_user(snaps: List[Snap], username: str) -> List[Snap]:
+    """
+    Returns all snaps sent by a specific user from the given list.
+
+    :param snaps: The list of Snap objects to analyze
+    :param username: The username of the sender
+    :return: A list of Snap objects sent by the specified user
+    """
+    return [snap for snap in snaps if snap.sender == username]
+
+def get_top_sender_to_me_and_top_person_I_send_to(received_snaps: List[Snap], sent_snaps: List[Snap]):
+    """
+    Returns the username of the person who sends the most snaps to you and the username of the person you
+    send the most snaps to.
+
+    :param received_snaps: the list of received snaps
+    :param sent_snaps: the list of sent snaps
+    :return: a tuple containing the top sender to you and the top person you send snaps to
+    """
+
+    received_frequency = compute_sender_frequency(received_snaps)
+    sent_frequency = compute_sender_frequency(sent_snaps)
+
+    top_sender_to_me = next(iter(received_frequency))
+    top_person_I_send_to = next(iter(sent_frequency))
+
+    return top_sender_to_me, top_person_I_send_to
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='A parser for Snapchat data exports')
     parser.add_argument('file', help='The path to the Snapchat snap history HTML file')
 
     args = parser.parse_args()
-
-    # todo argparse this but default to this
+    
     received, sent = extract_snap_history(args.file) 
-    print(compute_sender_frequency(received))
-    print(compute_sender_frequency(sent))
+    top_sender, top_receiver = get_top_sender_to_me_and_top_person_I_send_to(received, sent)
+    snaps_from_top_sender = get_snaps_by_user(received, top_sender)
+    snaps_to_top_receiver = get_snaps_by_user(sent, top_receiver)
+
+    print(snaps_from_top_sender)
