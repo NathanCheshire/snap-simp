@@ -1,4 +1,5 @@
-from typing import Dict, List, Tuple
+import argparse
+from typing import Dict, List, Set, Tuple
 from bs4 import BeautifulSoup
 from collections import Counter
 from snap import Snap, SnapType
@@ -15,7 +16,10 @@ TABLE = 'table'
 TABLE_ROW = 'tr'
 TABLE_DATA_CELL = 'td'
 
-def parse_snap_history_table(table):
+def parse_snap_history_table(table: BeautifulSoup) -> List[Snap]:
+    """
+    
+    """
     snaps = []
     if not table:
         return snaps
@@ -42,7 +46,7 @@ def extract_snap_history(filename: str) -> Tuple[List[Snap], List[Snap]]:
     This file is expected to have two and only two tables, the first should be the received snaps table
     and the second should be the sent snaps table.
 
-    :param filename: the path to the local html file.
+    :param filename: the path to the local html file
     :returns: two lists of snap objects, the first is the received snaps, the second is the sent snaps
     """
 
@@ -72,15 +76,34 @@ def compute_sender_frequency(snaps: List[Snap]) -> Dict[str, int]:
         "mysister": 22,
         "mycousin": 15
     }
+
+    :param snaps: the list of snaps to compute the sender frequency of
+    :return: a dictionary detailing the frequency of a particular sender/receiver
     """
 
-    username_counts = Counter([snap.sender for snap in snaps])
-    username_counts = {k: v for k, v in sorted(username_counts.items(), key=lambda item: item[1], reverse=True)}
-    return username_counts
+    username_counter = Counter(snap.sender for snap in snaps)
+    sorted_username_counts = sorted(username_counter.items(), key=lambda item: item[1], reverse=True)
+    sorted_username_dict = dict(sorted_username_counts)
+    return sorted_username_dict
 
+def get_unique_usernames(snaps: List[Snap]) -> Set[str]:
+    """
+    Returns all unique usernames from a list of Snap objects.
+
+    :param snaps: A list of Snap objects.
+    :return: A set of unique usernames.
+    """
+
+    unique_usernames = {snap.sender for snap in snaps}
+    return unique_usernames
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='A parser for Snapchat data exports')
+    parser.add_argument('file', help='The path to the Snapchat snap history HTML file')
+
+    args = parser.parse_args()
+
     # todo argparse this but default to this
-    received, sent = extract_snap_history('html/snap_history.html') 
+    received, sent = extract_snap_history(args.file) 
     print(compute_sender_frequency(received))
     print(compute_sender_frequency(sent))
