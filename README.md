@@ -1,12 +1,23 @@
-# Snap-simp
+![Tagline](./assets/tagline.png)
 
-## A Snapchat data export parsing utility tool
-
-## by Nate Cheshire
+![Author](./assets/author.png)
 
 ### Getting Started and Usage
 
-TODO
+To start using the utilities provided by SnapSimp, you'll first want to create a virtual environement:
+
+`python -m venv snap-simp-venv` or `python3 -m venv snap-simp-venv`
+
+Now you'll need to activate the virtual environment. If you're on Windows simply:
+
+`.\snap-simp-venv\Scripts\activate`
+
+If you're on Mac OSX, you'll need to source it:
+
+`source ./snap-simp-venv/bin/activate`
+
+Now you can simply install the requirements once inside of the virtual environement:
+
 
 ### Who
 
