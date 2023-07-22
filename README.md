@@ -20,6 +20,8 @@ Now you can simply install the requirements once inside of the virtual environem
 
 `pip install -r requirements.txt`
 
+Any and all HTML files to be analyzed are expected to be placed in the `html` folder within the same directory as this README. If you place them somwhere else, you'll need to provide the relative paths to the files via command line arguments such as `--snap-history-file` which is by default named `snap_history.html` and `--account-file` which is by default named `account.html`. If you name these something else you'll also need to tell the program that.
+
 ### Who
 
 That's kind of a dumb question but I'll assume you're asking who made this or who this is for. I, Nate Cheshire, made this as a means of procrastination on Friday, July 21st, 2023. I made this for anyone who wants to use the tool, namely me.
