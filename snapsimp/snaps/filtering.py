@@ -29,7 +29,7 @@ def get_top_username(snaps: List[Snap], direction: SnapDirection) -> str:
     :return: the username of the person who sends/receives the most snaps to/from you
     """
 
-    frequency = stats.compute_snap_count(snaps)
+    frequency = stats.compute_snap_count(snaps, direction)
     return next(iter(frequency))
 
 

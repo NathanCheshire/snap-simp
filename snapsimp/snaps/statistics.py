@@ -121,7 +121,8 @@ def get_date_range(snaps: List[Snap]) -> DateRange:
 def get_duration_of_snap_with_top_snapper(snaps: List[Snap], direction: SnapDirection) -> timedelta:
     """
     Returns the duration of the snaps sent or received from the top snapper from within the list.
-    For example, if a snap direction of received is provided, the returned time delta will 
+    For example, if a snap direction of received is provided, the returned time delta will convey how long
+    you have been receiving snaps from the top person who snaps you in this list.
     """
 
     top_user_snaps = filtering.get_snaps_by_top_username(snaps, direction)
@@ -129,19 +130,26 @@ def get_duration_of_snap_with_top_snapper(snaps: List[Snap], direction: SnapDire
 
 
 def calculate_descriptive_stats_between_snaps_of_top_user(sent_snaps: List[Snap], received_snaps: List[Snap]) -> DescriptiveStatsTimedelta:
-    # first we'll need to merge these lists and sort them by time, then we'll need to eliminate ones with
-    # the same sender with a lower time so basically we'll have a list of the most recent alternating snaps
-    # then we'll compute the times differences between all there, then we can average it
+    """
+    Computes and returns the descriptive stats between the top person you send and receive snaps to/from.
+    The provided lists are expected to have the same top user from them meaning you send the most
+    snaps to the person who sends you the most. The descriptive stats include a minimum, average, and maximum amount of time
+    between you sending a snap or series of snaps and the receipient replying AND the receipient sending you a snap or
+    series of snaps and you replying.
 
-    top_to_user = filtering.get_top_username(sent_snaps)
-    top_from_user = filtering.get_top_username(received_snaps)
-    print(top_to_user, top_from_user)
-    assert top_to_user == top_from_user
+    :param sent_snaps: the snaps you have sent
+    :param received_snaps: the snaps you have received
+    """
 
-    top_sent_to_snaps = filtering.get_snaps_by_sending_user(sent_snaps, top_to_user)
-    top_received_from_snaps = filtering.get_snaps_by_sending_user(received_snaps, top_from_user)
+    top_to_user = filtering.get_top_username(sent_snaps, SnapDirection.RECEIVED)
+    top_from_user = filtering.get_top_username(received_snaps, SnapDirection.SENT)
 
-    # place in ordering
+    if top_to_user != top_from_user:
+        raise AssertionError(f"Top from snapper must be equal to top to snapper, from sent and received snaps found that top sender was {top_from_user} while top receiver was {top_to_user}")
+
+    top_sent_to_snaps = filtering.get_snaps_by_user(sent_snaps, top_to_user, SnapDirection.RECEIVED)
+    top_received_from_snaps = filtering.get_snaps_by_user(received_snaps, top_from_user, SnapDirection.SENT)
+
     all_top_snaps = top_sent_to_snaps + top_received_from_snaps
     time_ordered = order_by_time_in_ascending_order(all_top_snaps)
 
@@ -149,7 +157,7 @@ def calculate_descriptive_stats_between_snaps_of_top_user(sent_snaps: List[Snap]
     # we'll need the most recent time and the most recent 
     # when sender
 
-    for snap in time_ordered[0:100]:
+    for snap in time_ordered:
         print(snap)
 
     return 0.0

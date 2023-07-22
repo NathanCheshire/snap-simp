@@ -1,6 +1,5 @@
 import argparse
 from selenium.selenium_utils import extract_snap_history, parse_basic_user_info_from_account_html
-from snaps.filtering import get_snaps_by_top_username
 from snaps.statistics import calculate_descriptive_stats_between_snaps_of_top_user
 
 
@@ -11,8 +10,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     basic_user_info = parse_basic_user_info_from_account_html(args.account_file)
-
     received, sent = extract_snap_history(args.snap_history_file, basic_user_info.username) 
-    top_sender_snaps = get_snaps_by_top_username(received)
-   
     print(calculate_descriptive_stats_between_snaps_of_top_user(sent, received))
