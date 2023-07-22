@@ -1,6 +1,6 @@
 from typing import  List, Set, Tuple
 from snaps.snap import Snap, SnapType
-from snaps.visualization_helpers import compute_sender_frequency
+import snaps.statistics as stats
 
 
 def get_snaps_by_user(snaps: List[Snap], username: str) -> List[Snap]:
@@ -22,7 +22,7 @@ def get_top_username(snaps: List[Snap]) -> str:
     :return: the username of the person whos name appears on the most snaps
     """
 
-    frequency = compute_sender_frequency(snaps)
+    frequency = stats.compute_snap_count(snaps)
     return next(iter(frequency))
 
 
