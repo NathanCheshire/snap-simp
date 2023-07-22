@@ -108,8 +108,7 @@ def extract_snap_history(snap_history_file_name: str, my_name: str) -> Tuple[Lis
     tables = soup.find_all(TableElements.TABLE.value)
 
     if len(tables) != SNAP_HISTORY_NUM_TABLES: 
-        print(f"Error: A table amount not equal to {SNAP_HISTORY_NUM_TABLES} tables found in {snap_history_file_name}; num tables: {len(tables)}")
-        return [], []
+        raise AssertionError(f"Error: A table amount not equal to {SNAP_HISTORY_NUM_TABLES} tables found in {snap_history_file_name}; num tables: {len(tables)}")
 
     received_snaps = parse_snap_history_table(tables[RECEIVED_SNAPS_TABLE_INDEX], SnapDirection.RECEIVED, my_name)
     sent_snaps = parse_snap_history_table(tables[SENT_SNAPS_TABLE_INDEX], SnapDirection.SENT, my_name)

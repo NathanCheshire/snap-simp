@@ -23,7 +23,7 @@ class Snap:
     def receiver(self):
         return self._receiver
 
-    @sender.setter
+    @receiver.setter
     def receiver(self, receiver):
         self._receiver = receiver
 
@@ -58,4 +58,4 @@ class Snap:
             self._direction = None
 
     def __repr__(self):
-        return f"Snap(sender='{self.sender}', type='{self.type}', timestamp='{self.timestamp}', direction={self.direction})"
+        return f"Snap(sender='{self.sender}', receiver='{self.receiver}', type='{self.type}', timestamp='{self.timestamp}', direction={self.direction})"

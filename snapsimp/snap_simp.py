@@ -1,7 +1,7 @@
 import argparse
 from selenium.selenium_utils import extract_snap_history, parse_basic_user_info_from_account_html
-from snaps.filtering import filter_snaps_by_type, get_snaps_by_top_username, get_top_username
-from snaps.statistics import calculate_min_avg_max_time_between_snaps_of_top_user
+from snaps.filtering import get_snaps_by_top_username
+from snaps.statistics import calculate_descriptive_stats_between_snaps_of_top_user
 
 
 if __name__ == '__main__':
@@ -11,13 +11,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     basic_user_info = parse_basic_user_info_from_account_html(args.account_file)
-    received_snaps, sent_snaps = extract_snap_history(args.snap_history_file, basic_user_info.username)
-    
-    for snap in sent_snaps:
-        print(snap)
-    
-    # received, sent = extract_snap_history(args.file) 
-    # top_sender_snaps = get_snaps_by_top_username(received)
-    # image_snaps, video_snaps = filter_snaps_by_type(top_sender_snaps)
+
+    received, sent = extract_snap_history(args.snap_history_file, basic_user_info.username) 
+    top_sender_snaps = get_snaps_by_top_username(received)
    
-    # print(calculate_min_avg_max_time_between_snaps_of_top_user(sent, received))
+    print(calculate_descriptive_stats_between_snaps_of_top_user(sent, received))
