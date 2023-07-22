@@ -53,27 +53,26 @@ def get_image_to_video_ratio_by_username(snaps: List[Snap], username: str, direc
 
     :param snaps: the list of snaps
     :param username: the username to return the image to video snap ratio of from within the provided snaps list.
-    :param direction: the direction for computing teh image to video ratio of, such as the ratio of sent images to videos
+    :param direction: the direction for computing the image to video ratio of, such as the ratio of sent images to videos
     or the ratio of received images to videos of a particular user
     """
-
 
     snaps_by_username = filtering.get_snaps_by_user(snaps, username, direction)
     image_snaps, video_snaps = filtering.filter_snaps_by_type(snaps_by_username)
     return len(image_snaps) / len(video_snaps)
 
-# todo need direction
-def get_image_to_video_ratio_by_top_username(snaps: List[Snap]) -> float:
+def get_image_to_video_ratio_by_top_username(snaps: List[Snap], direction: SnapDirection) -> float:
     """
     Returns the image to video snap ratio of the user with the most snaps of the provided list.
 
     :param snaps: the list of snaps
+    :param direction: the direction to compute the image to video snap ratio of
     :return: the image to video snap ratio of the user with the most snaps in the list. For example,
     if this was the snaps you received, this would return the ratio of image to video snaps of the person
     who sent you the most snaps
     """
 
-    return get_image_to_video_ratio_by_username(snaps, filtering.get_top_username(snaps))
+    return get_image_to_video_ratio_by_username(snaps, filtering.get_top_username(snaps), direction)
 
 
 def get_number_of_snaps_by_username(snaps: List[Snap], username: str):
@@ -88,21 +87,44 @@ def get_number_of_snaps_by_username(snaps: List[Snap], username: str):
 
 
 def order_by_time_in_ascending_order(snaps: List[Snap]) -> List[Snap]:
+    """
+    Returns the provided snap list after sorting into ascending order by the send time.
+
+    :param snaps: the list of snaps to sort into ascending order by send time
+    """
+
     return sorted(snaps, key=lambda snap: snap.timestamp)
 
 
 def order_by_time_in_descending_order(snaps: List[Snap]) -> List[Snap]:
+    """
+    Returns the provided snap list after sorting into descending order by the send time.
+
+    :param snaps: the list of snaps to sort into descending order by send time
+    """
+
     return sorted(snaps, key=lambda snap: snap.timestamp, reverse=True)
 
 
 def get_date_range(snaps: List[Snap]) -> DateRange:
+    """
+    Returns the date range of the provided list of snaps meaning the range between which all the snaps fall into.
+
+    :param snaps: the list of snaps
+    """
+
     time_ordered = time_ordered = order_by_time_in_ascending_order(snaps)
     assert len(time_ordered) >= 2
     return DateRange(time_ordered[0].timestamp, time_ordered[-1].timestamp)
 
 
-def get_duration_of_snap_with_top_snapper(snaps: List[Snap]) -> timedelta:
-    top_user_snaps = filtering.get_snaps_by_top_username(snaps)
+def get_duration_of_snap_with_top_snapper(snaps: List[Snap], direction: SnapDirection) -> timedelta:
+    """
+    Returns the duration of the snaps sent or received from the top snapper from within the list.
+    For example, if a snap direction of received is provided, the returned time delta will 
+    """
+
+    top_user_snaps = filtering.get_snaps_by_top_username(snaps, direction)
     return get_date_range(top_user_snaps).duration()
 
 
