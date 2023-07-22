@@ -113,6 +113,10 @@ def calculate_min_avg_max_time_between_snaps_of_top_user(sent_snaps: List[Snap],
     all_top_snaps = top_sent_to_snaps + top_received_from_snaps
     time_ordered = order_by_time_in_ascending_order(all_top_snaps)
 
+    # now we'll need a two running variables as we loop through
+    # we'll need the most recent time and the most recent 
+    # when sender
+
     for snap in time_ordered[0:100]:
         print(snap)
 

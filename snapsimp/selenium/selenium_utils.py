@@ -4,6 +4,9 @@ from snaps.snap import Snap
 from selenium.table_elements import TableElements
 from snaps.snap_type import SnapType
 from snaps.snap_direction import SnapDirection
+from common.basic_user_info import BasicUserInfo
+from selenium.html_headers import HtmlHeaders
+
 
 # The number of columns the Snap History Metadata html page includes.
 SNAP_HISTORY_NUM_TABLE_COLUMNS = 3
@@ -17,10 +20,41 @@ SENDER_COLUMN_INDEX = 0
 TYPE_COLUMN_INDEX = 1
 TIMESTAMP_COLUMN_INDEX = 2
 
+ACCOUNT_HTML_HEADERS = ["Basic Information", "Device Information", "Device History", "Login History"]
+
+
+def parse_basic_user_info_from_account_html(filename: str) -> BasicUserInfo:
+    with open(filename, 'r') as f:
+        soup = BeautifulSoup(f.read(), 'html.parser')
+
+    headers = soup.find_all(HtmlHeaders.H3.value)
+
+    if len(headers) != len(ACCOUNT_HTML_HEADERS):
+        raise ValueError(f"Unexpected number of {HtmlHeaders.H3.value} headers. Expected {len(ACCOUNT_HTML_HEADERS)}, found {len(headers)}")
+
+    for i in range(len(ACCOUNT_HTML_HEADERS)):
+        if headers[i].text != ACCOUNT_HTML_HEADERS[i]:
+            raise ValueError(f"Unexpected {HtmlHeaders.H3.value} header at position {i}. Expected '{ACCOUNT_HTML_HEADERS[i]}', found '{headers[i].text}'")
+
+    table = soup.find(TableElements.TABLE.value)
+    rows = table.find_all(TableElements.TABLE_ROW.value)
+
+    username_row = rows[0]
+    name_row = rows[1]
+    creation_date_row = rows[2]
+
+    username = username_row.find_all(TableElements.TABLE_HEADER.value)[1].get_text().strip()
+    name = name_row.find_all(TableElements.TABLE_HEADER.value)[1].get_text().strip()
+    creation_date = creation_date_row.find_all(TableElements.TABLE_HEADER.value)[1].get_text().strip()
+
+    return BasicUserInfo(username, name, creation_date)
+
+
 def parse_snap_history_table(table: BeautifulSoup, snap_direction: SnapDirection) -> List[Snap]:
     """
     
     """
+    
     snaps = []
     if not table:
         return snaps

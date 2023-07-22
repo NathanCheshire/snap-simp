@@ -4,8 +4,9 @@ from snaps.snap_type import SnapType
 from snaps.snap_direction import SnapDirection
 
 class Snap:
-    def __init__(self, sender, type, timestamp, direction=None):
+    def __init__(self, sender, receiver, type, timestamp, direction=None):
         self.sender = sender
+        self.receiver = receiver
         self.type = SnapType(type)
         self.timestamp = datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S %Z')
         self.direction = direction if direction else None
@@ -17,6 +18,14 @@ class Snap:
     @sender.setter
     def sender(self, sender):
         self._sender = sender
+
+    @property
+    def receiver(self):
+        return self._receiver
+
+    @sender.setter
+    def receiver(self, receiver):
+        self._receiver = receiver
 
     @property
     def type(self):
