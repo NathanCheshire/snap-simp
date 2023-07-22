@@ -8,22 +8,28 @@ from common.basic_user_info import BasicUserInfo
 from selenium.html_headers import HtmlHeaders
 
 
-# The number of columns the Snap History Metadata html page includes.
+# Constants for the snap_history.html file.
 SNAP_HISTORY_NUM_TABLE_COLUMNS = 3
-
-# The amount of tables the HTML document should contain.
-NUM_TABLES = 2
+SNAP_HISTORY_NUM_TABLES = 2
 RECEIVED_SNAPS_TABLE_INDEX = 0
 SENT_SNAPS_TABLE_INDEX = 1
-
 SENDER_COLUMN_INDEX = 0
 TYPE_COLUMN_INDEX = 1
 TIMESTAMP_COLUMN_INDEX = 2
 
+
+# Constants for the account.html file.
 ACCOUNT_HTML_HEADERS = ["Basic Information", "Device Information", "Device History", "Login History"]
 
 
 def parse_basic_user_info_from_account_html(filename: str) -> BasicUserInfo:
+    """
+    Extracts the basic information from the account.html file.
+
+    :param filename: the path to the html file containing the account data
+    :return: a BasicUserInfo object
+    """
+
     with open(filename, 'r') as f:
         soup = BeautifulSoup(f.read(), 'html.parser')
 
@@ -52,7 +58,11 @@ def parse_basic_user_info_from_account_html(filename: str) -> BasicUserInfo:
 
 def parse_snap_history_table(table: BeautifulSoup, snap_direction: SnapDirection) -> List[Snap]:
     """
-    
+    Parses a nspa history table using the provided table. All snaps are tagged with the provided direction.
+
+    :param table: the HTML extracted table element
+    :param snap_direction: the direction of this snap table such as received or sent
+    :return: a list of Snap objects
     """
     
     snaps = []
@@ -90,8 +100,8 @@ def extract_snap_history(filename: str) -> Tuple[List[Snap], List[Snap]]:
 
     tables = soup.find_all(TableElements.TABLE.value)
 
-    if len(tables) != NUM_TABLES: 
-        print(f"Error: A table amount not equal to {NUM_TABLES} tables found in {filename}; num tables: {len(tables)}")
+    if len(tables) != SNAP_HISTORY_NUM_TABLES: 
+        print(f"Error: A table amount not equal to {SNAP_HISTORY_NUM_TABLES} tables found in {filename}; num tables: {len(tables)}")
         return [], []
 
     received_snaps = parse_snap_history_table(tables[RECEIVED_SNAPS_TABLE_INDEX], SnapDirection.RECEIVED)
