@@ -8,6 +8,7 @@ from common.date_range import DateRange
 from snaps.snap_type import SnapType
 from common.descriptive_stats import DescriptiveStatsTimedelta
 from snaps.snap_direction import SnapDirection
+from statistics import mean
 
 def compute_snap_count(snaps: List[Snap], direction: SnapDirection) -> Dict[str, int]:
     """
@@ -114,7 +115,8 @@ def get_date_range(snaps: List[Snap]) -> DateRange:
     """
 
     time_ordered = time_ordered = order_by_time_in_ascending_order(snaps)
-    assert len(time_ordered) >= 2
+    if len(time_ordered) < 2:
+        raise AssertionError("Cannot construct a date range from less than 2 snaps")
     return DateRange(time_ordered[0].timestamp, time_ordered[-1].timestamp)
 
 
@@ -123,6 +125,9 @@ def get_duration_of_snap_with_top_snapper(snaps: List[Snap], direction: SnapDire
     Returns the duration of the snaps sent or received from the top snapper from within the list.
     For example, if a snap direction of received is provided, the returned time delta will convey how long
     you have been receiving snaps from the top person who snaps you in this list.
+
+    :param snaps: the list of snaps
+    :param direction: the direction of snaps
     """
 
     top_user_snaps = filtering.get_snaps_by_top_username(snaps, direction)
@@ -153,11 +158,25 @@ def calculate_descriptive_stats_between_snaps_of_top_user(sent_snaps: List[Snap]
     all_top_snaps = top_sent_to_snaps + top_received_from_snaps
     time_ordered = order_by_time_in_ascending_order(all_top_snaps)
 
-    # now we'll need a two running variables as we loop through
-    # we'll need the most recent time and the most recent 
-    # when sender
+    current_sender = time_ordered[0].sender
+    current_time = time_ordered[0].timestamp
+    awaiting_response_periods: List[DateRange] = []
 
     for snap in time_ordered:
-        print(snap)
+        if current_sender == snap.sender:
+            current_time = snap.timestamp
+            continue
+        else:
+            current_sender = snap.sender
+            new_time = snap.timestamp
+            awaiting_response_periods.append(DateRange(current_time, new_time))
+            current_time = new_time
 
-    return 0.0
+
+    awaiting_response_times = [p2.start_date - p1.end_date for p1, p2 in zip(awaiting_response_periods, awaiting_response_periods[1:])]
+
+    min_diff = min(awaiting_response_times)
+    max_diff = max(awaiting_response_times)
+    avg_diff = timedelta(seconds=mean([diff.total_seconds() for diff in awaiting_response_times]))
+
+    return DescriptiveStatsTimedelta(min_diff, avg_diff, max_diff)
