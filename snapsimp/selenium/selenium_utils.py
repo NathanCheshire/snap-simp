@@ -56,12 +56,13 @@ def parse_basic_user_info_from_account_html(filename: str) -> BasicUserInfo:
     return BasicUserInfo(username, name, creation_date)
 
 
-def parse_snap_history_table(table: BeautifulSoup, snap_direction: SnapDirection) -> List[Snap]:
+def parse_snap_history_table(table: BeautifulSoup, snap_direction: SnapDirection, my_name: str) -> List[Snap]:
     """
     Parses a nspa history table using the provided table. All snaps are tagged with the provided direction.
 
     :param table: the HTML extracted table element
     :param snap_direction: the direction of this snap table such as received or sent
+    :param my_name: your snapchat account username
     :return: a list of Snap objects
     """
     
@@ -77,34 +78,40 @@ def parse_snap_history_table(table: BeautifulSoup, snap_direction: SnapDirection
         if len(columns) < SNAP_HISTORY_NUM_TABLE_COLUMNS:
             continue
 
-        sender = columns[SENDER_COLUMN_INDEX].get_text()
+        other_account_username = columns[SENDER_COLUMN_INDEX].get_text()
         snap_type = SnapType.IMAGE if columns[TYPE_COLUMN_INDEX].get_text() == 'IMAGE' else SnapType.VIDEO
         timestamp = columns[TIMESTAMP_COLUMN_INDEX].get_text()
-        snaps.append(Snap(sender, snap_type, timestamp, snap_direction))
+
+        # If we received this snap, then sender is other acount username
+        if snap_direction == SnapDirection.RECEIVED:
+            snaps.append(Snap(other_account_username, my_name, snap_type, timestamp, snap_direction))
+        else:
+            snaps.append(Snap(my_name, my_name, other_account_username, timestamp, snap_direction))
 
     return snaps
 
 
-def extract_snap_history(filename: str) -> Tuple[List[Snap], List[Snap]]:
+def extract_snap_history(snap_history_file_name: str, my_name: str) -> Tuple[List[Snap], List[Snap]]:
     """
     Extracts the snap history, both sent and received snaps, from the provided snap history html file.
     This file is expected to have two and only two tables, the first should be the received snaps table
     and the second should be the sent snaps table.
 
-    :param filename: the path to the local html file
+    :param snap_history_file_name: the path to the local snap_history.html file
+    :param my_name: your snapchat account username, for me this is nathanvcheshire
     :returns: two lists of snap objects, the first is the received snaps, the second is the sent snaps
     """
 
-    with open(filename, 'r') as file:
+    with open(snap_history_file_name, 'r') as file:
         soup = BeautifulSoup(file.read(), 'html.parser')
 
     tables = soup.find_all(TableElements.TABLE.value)
 
     if len(tables) != SNAP_HISTORY_NUM_TABLES: 
-        print(f"Error: A table amount not equal to {SNAP_HISTORY_NUM_TABLES} tables found in {filename}; num tables: {len(tables)}")
+        print(f"Error: A table amount not equal to {SNAP_HISTORY_NUM_TABLES} tables found in {snap_history_file_name}; num tables: {len(tables)}")
         return [], []
 
-    received_snaps = parse_snap_history_table(tables[RECEIVED_SNAPS_TABLE_INDEX], SnapDirection.RECEIVED)
-    sent_snaps = parse_snap_history_table(tables[SENT_SNAPS_TABLE_INDEX], SnapDirection.SENT)
+    received_snaps = parse_snap_history_table(tables[RECEIVED_SNAPS_TABLE_INDEX], SnapDirection.RECEIVED, my_name)
+    sent_snaps = parse_snap_history_table(tables[SENT_SNAPS_TABLE_INDEX], SnapDirection.SENT, my_name)
 
     return received_snaps, sent_snaps

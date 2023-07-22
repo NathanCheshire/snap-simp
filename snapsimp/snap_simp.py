@@ -7,11 +7,13 @@ from snaps.statistics import calculate_min_avg_max_time_between_snaps_of_top_use
 if __name__ == '__main__':
     # todo we need to allow multiple files to be passed in but default to the default names assuming they are in html/
     parser = argparse.ArgumentParser(description='A parser for Snapchat data exports')
-    parser.add_argument('file', help='The path to the Snapchat snap history HTML file')
+    parser.add_argument('snap_history_file', help='The path to the Snapchat snap history HTML file', required=False, default='html/snap_history.html')
+    parser.add_argument('account_file', help='The path to the Snapchat account HTML file', required=False, default='html/account.html')
 
     args = parser.parse_args()
 
-    print(extract_snap_history(args.file))
+    basic_user_info = parse_basic_user_info_from_account_html(args.account_file)
+    print(extract_snap_history(args.snap_history_file, basic_user_info.username))
     
     # received, sent = extract_snap_history(args.file) 
     # top_sender_snaps = get_snaps_by_top_username(received)
