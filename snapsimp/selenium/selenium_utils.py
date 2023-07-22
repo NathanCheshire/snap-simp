@@ -86,7 +86,7 @@ def parse_snap_history_table(table: BeautifulSoup, snap_direction: SnapDirection
         if snap_direction == SnapDirection.RECEIVED:
             snaps.append(Snap(other_account_username, my_name, snap_type, timestamp, snap_direction))
         else:
-            snaps.append(Snap(my_name, my_name, other_account_username, timestamp, snap_direction))
+            snaps.append(Snap(my_name, other_account_username, snap_type, timestamp, snap_direction))
 
     return snaps
 
