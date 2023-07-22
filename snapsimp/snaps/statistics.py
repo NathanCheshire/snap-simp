@@ -2,9 +2,11 @@ from datetime import timedelta
 from typing import Dict, List, Set
 from collections import Counter
 import snaps.filtering as filtering
-from snaps.snap import Snap, SnapType
+from snaps.snap import Snap
 import snaps.filtering as filtering
 from common.date_range import DateRange
+from snaps.snap_type import SnapType
+from common.descriptive_stats import DescriptiveStatsTimedelta
 
 def compute_snap_count(snaps: List[Snap]) -> Dict[str, int]:
     """
@@ -84,18 +86,6 @@ def order_by_time_in_descending_order(snaps: List[Snap]) -> List[Snap]:
     return sorted(snaps, key=lambda snap: snap.timestamp, reverse=True)
 
 
-def calculate_avg_time_between_top_snapper(sent_snaps: List[Snap], received_snaps: List[Snap]) -> timedelta:
-    top_to_user = filtering.get_top_username(sent_snaps)
-    top_from_user = filtering.get_top_username(sent_snaps)
-
-    assert top_to_user == top_from_user
-
-    top_sent_to_snaps = filtering.get_snaps_by_top_username(sent_snaps)
-    top_received_from_snaps = filtering.get_snaps_by_top_username(received_snaps)
-
-    return calculate_avg_time_between_snaps(top_sent_to_snaps, top_received_from_snaps, top_to_user)
-
-
 def get_date_range(snaps: List[Snap]) -> DateRange:
     time_ordered = time_ordered = order_by_time_in_ascending_order(snaps)
     assert len(time_ordered) >= 2
@@ -107,22 +97,23 @@ def get_duration_of_snap_with_top_snapper(snaps: List[Snap]) -> timedelta:
     return get_date_range(top_user_snaps).duration()
 
 
-def calculate_avg_time_between_snaps(sent_snaps: List[Snap], received_snaps: List[Snap], username: str) -> timedelta:
+def calculate_min_avg_max_time_between_snaps_of_top_user(sent_snaps: List[Snap], received_snaps: List[Snap]) -> DescriptiveStatsTimedelta:
     # first we'll need to merge these lists and sort them by time, then we'll need to eliminate ones with
     # the same sender with a lower time so basically we'll have a list of the most recent alternating snaps
     # then we'll compute the times differences between all there, then we can average it
 
-    all_snaps = sent_snaps + received_snaps
-    time_ordered = order_by_time_in_ascending_order(all_snaps)
-    print(time_ordered[0], time_ordered[-1])
-    print(len(time_ordered))
+    top_to_user = filtering.get_top_username(sent_snaps)
+    top_from_user = filtering.get_top_username(received_snaps)
+    assert top_to_user == top_from_user
+
+    top_sent_to_snaps = filtering.get_snaps_by_user(sent_snaps, top_to_user)
+    top_received_from_snaps = filtering.get_snaps_by_user(received_snaps, top_from_user)
+
+    # place in ordering
+    all_top_snaps = top_sent_to_snaps + top_received_from_snaps
+    time_ordered = order_by_time_in_ascending_order(all_top_snaps)
+
+    for snap in time_ordered[0:100]:
+        print(snap)
 
     return 0.0
-
-
-def calculate_min_time_between_snaps(sent_snaps: List[Snap], received_snaps: List[Snap], username: str) -> timedelta:
-    pass
-
-
-def calculate_max_time_between_snaps(sent_snaps: List[Snap], received_snaps: List[Snap], username: str) -> timedelta:
-    pass

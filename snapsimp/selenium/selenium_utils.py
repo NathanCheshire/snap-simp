@@ -1,7 +1,9 @@
 from typing import  List, Tuple
 from bs4 import BeautifulSoup
-from snaps.snap import Snap, SnapType
+from snaps.snap import Snap
 from selenium.table_elements import TableElements
+from snaps.snap_type import SnapType
+from snaps.snap_direction import SnapDirection
 
 # The number of columns the Snap History Metadata html page includes.
 SNAP_HISTORY_NUM_TABLE_COLUMNS = 3
@@ -15,7 +17,7 @@ SENDER_COLUMN_INDEX = 0
 TYPE_COLUMN_INDEX = 1
 TIMESTAMP_COLUMN_INDEX = 2
 
-def parse_snap_history_table(table: BeautifulSoup) -> List[Snap]:
+def parse_snap_history_table(table: BeautifulSoup, snap_direction: SnapDirection) -> List[Snap]:
     """
     
     """
@@ -34,7 +36,7 @@ def parse_snap_history_table(table: BeautifulSoup) -> List[Snap]:
         sender = columns[SENDER_COLUMN_INDEX].get_text()
         snap_type = SnapType.IMAGE if columns[TYPE_COLUMN_INDEX].get_text() == 'IMAGE' else SnapType.VIDEO
         timestamp = columns[TIMESTAMP_COLUMN_INDEX].get_text()
-        snaps.append(Snap(sender, snap_type, timestamp))
+        snaps.append(Snap(sender, snap_type, timestamp, snap_direction))
 
     return snaps
 
@@ -58,7 +60,7 @@ def extract_snap_history(filename: str) -> Tuple[List[Snap], List[Snap]]:
         print(f"Error: A table amount not equal to {NUM_TABLES} tables found in {filename}; num tables: {len(tables)}")
         return [], []
 
-    received_snaps = parse_snap_history_table(tables[RECEIVED_SNAPS_TABLE_INDEX])
-    sent_snaps = parse_snap_history_table(tables[SENT_SNAPS_TABLE_INDEX])
+    received_snaps = parse_snap_history_table(tables[RECEIVED_SNAPS_TABLE_INDEX], SnapDirection.RECEIVED)
+    sent_snaps = parse_snap_history_table(tables[SENT_SNAPS_TABLE_INDEX], SnapDirection.SENT)
 
     return received_snaps, sent_snaps

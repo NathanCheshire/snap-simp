@@ -1,6 +1,7 @@
 from typing import  List, Set, Tuple
-from snaps.snap import Snap, SnapType
+from snaps.snap import Snap
 import snaps.statistics as stats
+from snaps.snap_type import SnapType
 
 
 def get_snaps_by_user(snaps: List[Snap], username: str) -> List[Snap]:
