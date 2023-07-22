@@ -18,6 +18,7 @@ If you're on Mac OSX, you'll need to source it:
 
 Now you can simply install the requirements once inside of the virtual environement:
 
+`pip install -r requirements.txt`
 
 ### Who
 
