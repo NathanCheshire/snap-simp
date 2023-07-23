@@ -186,18 +186,22 @@ def get_duration_of_snap_with_top_receiver(snaps: List[Snap]) -> timedelta:
 
 
 def get_days_top_sender_did_not_send(snaps: List[Snap]) -> List[datetime]:
-    top_sender_snaps = filtering.get_snaps_by_top_sender(snaps)
-    days_top_sender_sent = {snap.timestamp.date() for snap in top_sender_snaps}
+    days_top_sender_sent = get_days_top_sender_sent(snaps)
 
     min_date = min(days_top_sender_sent)
     max_date = max(days_top_sender_sent)
 
     all_days_sorted = generate_ordered_date_range(min_date, max_date)
+    days_top_sender_did_not_send = list(set(all_days_sorted) - days_top_sender_sent)
+    days_top_sender_did_not_send_sorted = sorted(days_top_sender_did_not_send)
 
-    for day in all_days_sorted:
-        print(day)
+    return days_top_sender_did_not_send_sorted
 
-    return []
+
+def get_days_top_sender_sent(snaps: List[Snap]) -> List[datetime]:
+    top_sender_snaps = filtering.get_snaps_by_top_sender(snaps)
+    days_top_sender_sent = {snap.timestamp.date() for snap in top_sender_snaps}
+    return sorted(list(days_top_sender_sent))
 
 
 # this method should accept a conversation object
