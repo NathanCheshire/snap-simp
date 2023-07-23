@@ -48,7 +48,11 @@ def get_snap_type_count(snaps: List[Snap]) -> Dict[SnapType, int]:
     """
     Count the number of each type of snap in the given list, that of video or image.
 
-    todo example schema here
+    Example:
+    {
+        "IMAGE": 1984,
+        "VIDEO": 5150
+    }
 
     :param snaps: The list of Snap objects to analyze
     :return: A dictionary mapping each snap type to its count
@@ -221,52 +225,3 @@ def get_days_top_receiver_received(snaps: List[Snap]) -> List[datetime]:
     top_receiver_snaps = filtering.get_snaps_by_top_receiver(snaps)
     days_top_receiver_received = {snap.timestamp.date() for snap in top_receiver_snaps}
     return sorted(list(days_top_receiver_received))
-
-
-# this method should accept a conversation object
-# def calculate_descriptive_stats_between_snaps_of_top_user(sent_snaps: List[Snap], received_snaps: List[Snap]) -> DescriptiveStatsTimedelta:
-#     """
-#     Computes and returns the descriptive stats between the top person you send and receive snaps to/from.
-#     The provided lists are expected to have the same top user from them meaning you send the most
-#     snaps to the person who sends you the most. The descriptive stats include a minimum, average, and maximum amount of time
-#     between you sending a snap or series of snaps and the receipient replying AND the receipient sending you a snap or
-#     series of snaps and you replying.
-
-#     :param sent_snaps: the snaps you have sent
-#     :param received_snaps: the snaps you have received
-#     """
-
-#     top_to_user = filtering.get_top_username(sent_snaps, SnapDirection.RECEIVED)
-#     top_from_user = filtering.get_top_username(received_snaps, SnapDirection.SENT)
-
-#     if top_to_user != top_from_user:
-#         raise AssertionError(f"Top from snapper must be equal to top to snapper, from sent and received snaps found that top sender was {top_from_user} while top receiver was {top_to_user}")
-
-#     top_sent_to_snaps = filtering.get_snaps_by_user(sent_snaps, top_to_user, SnapDirection.RECEIVED)
-#     top_received_from_snaps = filtering.get_snaps_by_user(received_snaps, top_from_user, SnapDirection.SENT)
-
-#     all_top_snaps = top_sent_to_snaps + top_received_from_snaps
-#     time_ordered = order_by_time_in_ascending_order(all_top_snaps)
-
-#     current_sender = time_ordered[0].sender
-#     current_time = time_ordered[0].timestamp
-#     awaiting_response_periods: List[DateRange] = []
-
-#     for snap in time_ordered:
-#         if current_sender == snap.sender:
-#             current_time = snap.timestamp
-#             continue
-#         else:
-#             current_sender = snap.sender
-#             new_time = snap.timestamp
-#             awaiting_response_periods.append(DateRange(current_time, new_time))
-#             current_time = new_time
-
-
-#     awaiting_response_times = [p2.start_date - p1.end_date for p1, p2 in zip(awaiting_response_periods, awaiting_response_periods[1:])]
-
-#     min_diff = min(awaiting_response_times)
-#     max_diff = max(awaiting_response_times)
-#     avg_diff = timedelta(seconds=mean([diff.total_seconds() for diff in awaiting_response_times]))
-
-#     return DescriptiveStatsTimedelta(min_diff, avg_diff, max_diff)
