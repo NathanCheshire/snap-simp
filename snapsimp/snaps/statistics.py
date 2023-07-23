@@ -6,8 +6,6 @@ from snaps.snap import Snap
 import snaps.filtering as filtering
 from common.date_range import DateRange
 from snaps.snap_type import SnapType
-from common.descriptive_stats import DescriptiveStatsTimedelta
-from statistics import mean
 
 def compute_snap_count(snaps: List[Snap]) -> Tuple[Dict[str, int], Dict[str, int]]:
     """
@@ -46,7 +44,7 @@ def compute_snap_count(snaps: List[Snap]) -> Tuple[Dict[str, int], Dict[str, int
 
 def get_snap_type_count(snaps: List[Snap]) -> Dict[SnapType, int]:
     """
-    Count the number of each type of snap in the given list.
+    Count the number of each type of snap in the given list, that of video or image.
 
     todo example schema here
 
@@ -60,10 +58,10 @@ def get_snap_type_count(snaps: List[Snap]) -> Dict[SnapType, int]:
 
 def get_image_to_video_ratio_by_sending_user(snaps: List[Snap], username: str) -> float:
     """
-    Returne the image to video snap ratio of the provided username.
+    Returns the image to video snap ratio of the provided sending user.
 
     :param snaps: the list of snaps
-    :param username: the username to return the image to video snap ratio of from within the provided snaps list.
+    :param username: the username to return the image to video snap ratio of from within the provided snaps list
     """
 
     snaps_by_username = filtering.get_snaps_by_sending_user(snaps, username)
@@ -71,28 +69,63 @@ def get_image_to_video_ratio_by_sending_user(snaps: List[Snap], username: str) -
     return len(image_snaps) / len(video_snaps)
 
 
-def get_image_to_video_ratio_by_top_sender(snaps: List[Snap]) -> float:
+def get_image_to_video_ratio_by_receiving_user(snaps: List[Snap], username: str) -> float:
     """
-    Returns the image to video snap ratio of the user with the most snaps of the provided list.
+    Returns the image to video snap ratio of the provided receiving user.
 
     :param snaps: the list of snaps
-    :return: the image to video snap ratio of the user with the most snaps in the list. For example,
-    if this was the snaps you received, this would return the ratio of image to video snaps of the person
-    who sent you the most snaps
+    :param username: the username to return the image to video snap ratio of from within the provided snaps list
+    """
+
+    snaps_by_username = filtering.get_snaps_by_receiving_user(snaps, username)
+    image_snaps, video_snaps = filtering.filter_snaps_by_type(snaps_by_username)
+    return len(image_snaps) / len(video_snaps)
+
+
+def get_image_to_video_ratio_by_top_sender(snaps: List[Snap]) -> float:
+    """
+    Returns the image to video snap ratio of top sender of snaps from within the provided list.
+
+    :param snaps: the list of snaps
+    :return: the image to video snap ratio of top sender of snaps from within the provided list
     """
 
     return get_image_to_video_ratio_by_sending_user(snaps, filtering.get_top_sender_username(snaps))
 
 
+def get_image_to_video_ratio_by_top_receiver(snaps: List[Snap]) -> float:
+    """
+    Returns the image to video snap ratio of top recipient of snaps from within the provided list.
+
+    :param snaps: the list of snaps
+    :return: the image to video snap ratio of top recipient of snaps from within the provided list
+    """
+
+    return get_image_to_video_ratio_by_receiving_user(snaps, filtering.get_top_receiver_username(snaps))
+
+
 def get_number_of_snaps_by_sender(snaps: List[Snap], username: str):
     """
-    Returns the number of snaps by by the following username in the provided set.
+    Returns the number of snaps the provided user sent.
 
     :param snaps: the list of snaps
     :param username: the username to filter on
+    :return: the number of snaps the provided user sent
     """
 
     return len(filtering.get_snaps_by_sending_user(snaps, username))
+
+
+def get_number_of_snaps_by_receiver(snaps: List[Snap], username: str):
+    """
+    Returns the number of snaps the provided user received.
+
+    :param snaps: the list of snaps
+    :param username: the username to filter on
+    :return: the number of snaps the provided user received
+    """
+
+    return len(filtering.get_snaps_by_receiving_user(snaps, username))
 
 
 def order_by_time_in_ascending_order(snaps: List[Snap]) -> List[Snap]:
@@ -130,64 +163,70 @@ def get_date_range(snaps: List[Snap]) -> DateRange:
 
 def get_duration_of_snap_with_top_sender(snaps: List[Snap]) -> timedelta:
     """
-    Returns the duration of the snaps sent or received from the top snapper from within the list.
+    Returns the duration of the snaps sent by the top sender from within the list.
 
     :param snaps: the list of snaps
     """
 
-    top_user_snaps = filtering.get_snaps_by_top_sender(snaps)
-    return get_date_range(top_user_snaps).duration()
+    top_sender_snaps = filtering.get_snaps_by_top_sender(snaps)
+    return get_date_range(top_sender_snaps).duration()
 
 
+def get_duration_of_snap_with_top_receiver(snaps: List[Snap]) -> timedelta:
+    """
+    Returns the duration of the snaps received by the top receiver from within the list.
 
+    :param snaps: the list of snaps
+    """
 
-
+    top_receiver_snaps = filtering.get_snaps_by_top_receiver(snaps)
+    return get_date_range(top_receiver_snaps).duration()
 
 
 # this method should accept a conversation object
-def calculate_descriptive_stats_between_snaps_of_top_user(sent_snaps: List[Snap], received_snaps: List[Snap]) -> DescriptiveStatsTimedelta:
-    """
-    Computes and returns the descriptive stats between the top person you send and receive snaps to/from.
-    The provided lists are expected to have the same top user from them meaning you send the most
-    snaps to the person who sends you the most. The descriptive stats include a minimum, average, and maximum amount of time
-    between you sending a snap or series of snaps and the receipient replying AND the receipient sending you a snap or
-    series of snaps and you replying.
+# def calculate_descriptive_stats_between_snaps_of_top_user(sent_snaps: List[Snap], received_snaps: List[Snap]) -> DescriptiveStatsTimedelta:
+#     """
+#     Computes and returns the descriptive stats between the top person you send and receive snaps to/from.
+#     The provided lists are expected to have the same top user from them meaning you send the most
+#     snaps to the person who sends you the most. The descriptive stats include a minimum, average, and maximum amount of time
+#     between you sending a snap or series of snaps and the receipient replying AND the receipient sending you a snap or
+#     series of snaps and you replying.
 
-    :param sent_snaps: the snaps you have sent
-    :param received_snaps: the snaps you have received
-    """
+#     :param sent_snaps: the snaps you have sent
+#     :param received_snaps: the snaps you have received
+#     """
 
-    top_to_user = filtering.get_top_username(sent_snaps, SnapDirection.RECEIVED)
-    top_from_user = filtering.get_top_username(received_snaps, SnapDirection.SENT)
+#     top_to_user = filtering.get_top_username(sent_snaps, SnapDirection.RECEIVED)
+#     top_from_user = filtering.get_top_username(received_snaps, SnapDirection.SENT)
 
-    if top_to_user != top_from_user:
-        raise AssertionError(f"Top from snapper must be equal to top to snapper, from sent and received snaps found that top sender was {top_from_user} while top receiver was {top_to_user}")
+#     if top_to_user != top_from_user:
+#         raise AssertionError(f"Top from snapper must be equal to top to snapper, from sent and received snaps found that top sender was {top_from_user} while top receiver was {top_to_user}")
 
-    top_sent_to_snaps = filtering.get_snaps_by_user(sent_snaps, top_to_user, SnapDirection.RECEIVED)
-    top_received_from_snaps = filtering.get_snaps_by_user(received_snaps, top_from_user, SnapDirection.SENT)
+#     top_sent_to_snaps = filtering.get_snaps_by_user(sent_snaps, top_to_user, SnapDirection.RECEIVED)
+#     top_received_from_snaps = filtering.get_snaps_by_user(received_snaps, top_from_user, SnapDirection.SENT)
 
-    all_top_snaps = top_sent_to_snaps + top_received_from_snaps
-    time_ordered = order_by_time_in_ascending_order(all_top_snaps)
+#     all_top_snaps = top_sent_to_snaps + top_received_from_snaps
+#     time_ordered = order_by_time_in_ascending_order(all_top_snaps)
 
-    current_sender = time_ordered[0].sender
-    current_time = time_ordered[0].timestamp
-    awaiting_response_periods: List[DateRange] = []
+#     current_sender = time_ordered[0].sender
+#     current_time = time_ordered[0].timestamp
+#     awaiting_response_periods: List[DateRange] = []
 
-    for snap in time_ordered:
-        if current_sender == snap.sender:
-            current_time = snap.timestamp
-            continue
-        else:
-            current_sender = snap.sender
-            new_time = snap.timestamp
-            awaiting_response_periods.append(DateRange(current_time, new_time))
-            current_time = new_time
+#     for snap in time_ordered:
+#         if current_sender == snap.sender:
+#             current_time = snap.timestamp
+#             continue
+#         else:
+#             current_sender = snap.sender
+#             new_time = snap.timestamp
+#             awaiting_response_periods.append(DateRange(current_time, new_time))
+#             current_time = new_time
 
 
-    awaiting_response_times = [p2.start_date - p1.end_date for p1, p2 in zip(awaiting_response_periods, awaiting_response_periods[1:])]
+#     awaiting_response_times = [p2.start_date - p1.end_date for p1, p2 in zip(awaiting_response_periods, awaiting_response_periods[1:])]
 
-    min_diff = min(awaiting_response_times)
-    max_diff = max(awaiting_response_times)
-    avg_diff = timedelta(seconds=mean([diff.total_seconds() for diff in awaiting_response_times]))
+#     min_diff = min(awaiting_response_times)
+#     max_diff = max(awaiting_response_times)
+#     avg_diff = timedelta(seconds=mean([diff.total_seconds() for diff in awaiting_response_times]))
 
-    return DescriptiveStatsTimedelta(min_diff, avg_diff, max_diff)
+#     return DescriptiveStatsTimedelta(min_diff, avg_diff, max_diff)
