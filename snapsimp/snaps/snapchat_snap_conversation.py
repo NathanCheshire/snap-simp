@@ -1,5 +1,6 @@
 from datetime import timedelta
 import datetime
+from statistics import mean
 from typing import List, Set
 from collections import Counter
 
@@ -180,60 +181,45 @@ class SnapchatSnapConversation:
         received_snaps_by_user = self.get_received_snaps_by_user(username)
         return len(received_snaps_by_user) if received_snaps_by_user else 0
     
-    def calculate_descriptive_response_stats_of_dominant_receiver(self) -> DescriptiveStatsTimedelta:
-        pass
+    def __get_switching_snaps(self) -> List[Snap]:
+        switching_snaps = []
 
+        for i in range(len(self.snaps) - 1): 
+            current_snap = self.snaps[i]
+            next_snap = self.snaps[i + 1]
 
+            if current_snap.sender != next_snap.sender:
+                switching_snaps.append(current_snap)
 
+        switching_snaps.append(self.snaps[-1])
+
+        return switching_snaps
     
-    #     """
-#     Computes and returns the descriptive stats between the top person you send and receive snaps to/from.
-#     The provided lists are expected to have the same top user from them meaning you send the most
-#     snaps to the person who sends you the most. The descriptive stats include a minimum, average, and maximum amount of time
-#     between you sending a snap or series of snaps and the receipient replying AND the receipient sending you a snap or
-#     series of snaps and you replying.
+    def calculate_descriptive_response_stats_of_receiver(self, receiver: str) -> DescriptiveStatsTimedelta:
+        """
+        Computes and returns the descriptive stats for the provided receiver. Namely, the minimum, average, and maximum
+        time taken before they respond to the other person's snaps.
 
-#     :param sent_snaps: the snaps you have sent
-#     :param received_snaps: the snaps you have received
-#     """
+        :param receiver: the username of the receiver
+        """
 
-#     top_to_user = filtering.get_top_username(sent_snaps, SnapDirection.RECEIVED)
-#     top_from_user = filtering.get_top_username(received_snaps, SnapDirection.SENT)
+        if receiver not in self.users:
+            raise AssertionError(f"{receiver} should be in list of users: {self.users}")
 
-#     if top_to_user != top_from_user:
-#         raise AssertionError(f"Top from snapper must be equal to top to snapper, from sent and received snaps found that top sender was {top_from_user} while top receiver was {top_to_user}")
+        latest_snaps_before_sender_switch = self.__get_switching_snaps()
 
-#     top_sent_to_snaps = filtering.get_snaps_by_user(sent_snaps, top_to_user, SnapDirection.RECEIVED)
-#     top_received_from_snaps = filtering.get_snaps_by_user(received_snaps, top_from_user, SnapDirection.SENT)
+        # Extract the timestamps of snaps sent by the receiver
+        receiver_snap_times = [snap.timestamp for snap in latest_snaps_before_sender_switch if snap.sender == receiver]
+        # Pair each snap time with the next one (if it exists)
+        paired_snap_times = list(zip(receiver_snap_times, receiver_snap_times[1:]))
+        # Compute the time differences
+        awaiting_response_times = [(t2 - t1) for t1, t2 in paired_snap_times]
 
-#     all_top_snaps = top_sent_to_snaps + top_received_from_snaps
-#     time_ordered = order_by_time_in_ascending_order(all_top_snaps)
+        min_diff = min(awaiting_response_times)
+        max_diff = max(awaiting_response_times)
+        avg_diff = timedelta(seconds=mean([diff.total_seconds() for diff in awaiting_response_times]))
 
-#     current_sender = time_ordered[0].sender
-#     current_time = time_ordered[0].timestamp
-#     awaiting_response_periods: List[DateRange] = []
-
-#     for snap in time_ordered:
-#         if current_sender == snap.sender:
-#             current_time = snap.timestamp
-#             continue
-#         else:
-#             current_sender = snap.sender
-#             new_time = snap.timestamp
-#             awaiting_response_periods.append(DateRange(current_time, new_time))
-#             current_time = new_time
-
-
-#     awaiting_response_times = [p2.start_date - p1.end_date for p1, p2 in zip(awaiting_response_periods, awaiting_response_periods[1:])]
-
-#     min_diff = min(awaiting_response_times)
-#     max_diff = max(awaiting_response_times)
-#     avg_diff = timedelta(seconds=mean([diff.total_seconds() for diff in awaiting_response_times]))
-
-#     return DescriptiveStatsTimedelta(min_diff, avg_diff, max_diff)
-
-    def calculate_descriptive_response_stats_of_dominant_sender(self) -> DescriptiveStatsTimedelta:
-        pass
+        return DescriptiveStatsTimedelta(min_diff, avg_diff, max_diff)
     
     def __str__(self):
         return f"SnapchatSnapConversation(users={self.users}, num_snaps={len(self.snaps)}, earliest_snap_date={self.get_earlier_snap_date()}, latest_snap_date={self.get_latest_snap_date()})"
