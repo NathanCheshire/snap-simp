@@ -198,10 +198,29 @@ def get_days_top_sender_did_not_send(snaps: List[Snap]) -> List[datetime]:
     return days_top_sender_did_not_send_sorted
 
 
+def get_days_top_receiver_did_not_receive(snaps: List[Snap]) -> List[datetime]:
+    days_top_receiver_received = get_days_top_receiver_received(snaps)
+
+    min_date = min(days_top_receiver_received)
+    max_date = max(days_top_receiver_received)
+
+    all_days_sorted = generate_ordered_date_range(min_date, max_date)
+    days_top_receiver_did_not_receive = list(set(all_days_sorted) - days_top_receiver_received)
+    days_top_receiver_did_not_receive_sorted = sorted(days_top_receiver_did_not_receive)
+
+    return days_top_receiver_did_not_receive_sorted
+
+
 def get_days_top_sender_sent(snaps: List[Snap]) -> List[datetime]:
     top_sender_snaps = filtering.get_snaps_by_top_sender(snaps)
     days_top_sender_sent = {snap.timestamp.date() for snap in top_sender_snaps}
     return sorted(list(days_top_sender_sent))
+
+
+def get_days_top_receiver_received(snaps: List[Snap]) -> List[datetime]:
+    top_receiver_snaps = filtering.get_snaps_by_top_receiver(snaps)
+    days_top_receiver_received = {snap.timestamp.date() for snap in top_receiver_snaps}
+    return sorted(list(days_top_receiver_received))
 
 
 # this method should accept a conversation object
