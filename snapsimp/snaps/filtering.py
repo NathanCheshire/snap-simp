@@ -2,50 +2,78 @@ from typing import  List, Set, Tuple
 from snaps.snap import Snap
 import snaps.statistics as stats
 from snaps.snap_type import SnapType
-from snaps.snap_direction import SnapDirection
 
 
-def get_snaps_by_user(snaps: List[Snap], username: str, direction: SnapDirection) -> List[Snap]:
+def get_snaps_by_sending_user(snaps: List[Snap], username: str) -> List[Snap]:
     """
-    Returns all snaps sent/received by a specific user from the given list.
+    Returns all snaps sent by a specific user from the given list.
 
     :param snaps: The list of Snap objects to analyze
-    :param username: The username of the sender/receiver
-    :return: A list of Snap objects sent/received by/from the specified user
+    :param username: The username of the sender
+    :return: a list of Snap objects sent by the specified user
     """
 
-    if direction == SnapDirection.SENT:
-        return [snap for snap in snaps if snap.sender == username]
-    else:
-        return [snap for snap in snaps if snap.receiver == username]
+    return [snap for snap in snaps if snap.sender == username]
 
 
-def get_top_username(snaps: List[Snap], direction: SnapDirection) -> str:
+def get_snaps_by_receiving_user(snaps: List[Snap], username: str) -> List[Snap]:
+    """
+    Returns all snaps received by a specific user from the given list.
+
+    :param snaps: The list of Snap objects to analyze
+    :param username: The username of the receiver
+    :return: a list of Snap objects received by the specified user
+    """
+
+    return [snap for snap in snaps if snap.receiver == username]
+
+
+def get_top_sender_username(snaps: List[Snap]) -> str:
     """
     Returns the username of the person whos name appears on the most snaps of the provided list.
 
     :param snaps: the list of snaps
-    :param direction: the direction of the snap
     :return: the username of the person who sends/receives the most snaps to/from you
     """
 
-    frequency = stats.compute_snap_count(snaps, direction)
-    return next(iter(frequency))
+    sorted_sender_username_dict, _ = stats.compute_snap_count(snaps)
+    return next(iter(sorted_sender_username_dict))
 
 
-def get_snaps_by_top_username(snaps: List[Snap], direction: SnapDirection) -> List[Snap]:
+def get_top_receiver_username(snaps: List[Snap]) -> str:
     """
-    Returns a subset of the provided list of snaps containing only the snaps to/from the highest receiver/sender.
+    Returns the username of the person whos name appears on the most snaps of the provided list.
 
     :param snaps: the list of snaps
-    :param direction: the direction of the snap to get the top username of, i.e. top sender to you or top receiver from you
-    :return: a list of snaps containing the snaps to/from the top receiver/sender. If the provided list was snaps
-    received by you, the subset would contain the snaps sent from the person who snaps you the most. If the provided
-    list was snaps sent by you, the subset would contain the snaps received from the person who you snap the most.
+    :return: the username of the person who sends/receives the most snaps to/from you
     """
 
-    top_sender_or_receiver = get_top_username(snaps, direction)
-    return get_snaps_by_user(snaps, top_sender_or_receiver, direction)
+    _, sorted_receiver_username_dict = stats.compute_snap_count(snaps)
+    return next(iter(sorted_receiver_username_dict))
+
+
+def get_snaps_by_top_sender(snaps: List[Snap]) -> List[Snap]:
+    """
+    Returns a subset of the provided list of snaps containing only the snaps from the top sender
+
+    :param snaps: the list of snaps
+    :return: a list of snaps containing the snaps from the top sender
+    """
+
+    top_sender = get_top_sender_username(snaps)
+    return get_snaps_by_sending_user(snaps, top_sender)
+
+
+def get_snaps_by_top_receiver(snaps: List[Snap]) -> List[Snap]:
+    """
+    Returns a subset of the provided list of snaps containing only the snaps to the top receiver
+
+    :param snaps: the list of snaps
+    :return: a list of snaps containing the snaps to the top receiver
+    """
+
+    top_receiver = get_top_receiver_username(snaps)
+    return get_snaps_by_sending_user(snaps, top_receiver)
 
 
 def filter_snaps_by_type(snaps: List[Snap]) -> Tuple[List[Snap], List[Snap]]:
@@ -62,17 +90,25 @@ def filter_snaps_by_type(snaps: List[Snap]) -> Tuple[List[Snap], List[Snap]]:
     return image_snaps, video_snaps
 
 
-def get_unique_usernames(snaps: List[Snap], direction: SnapDirection) -> Set[str]:
+def get_unique_sending_usernames(snaps: List[Snap]) -> Set[str]:
     """
-    Returns all unique sender/receiver usernames from the list of Snap objects.
+    Returns all unique sender usernames from the list of Snap objects.
 
-    :param snaps: A list of Snap objects
-    :param direction: the direction of the snaps
-    :return: A set of unique sender usernames.
+    :param snaps: a list of Snap objects
+    :return: a set of unique usernames
     """
 
-    if direction == SnapDirection.SENT:
-        return {snap.sender for snap in snaps}
-    else:
-        return {snap.receiver for snap in snaps}
+    sender_names = {snap.sender for snap in snaps}
+    return sender_names
 
+
+def get_unique_receiving_usernames(snaps: List[Snap]) -> Set[str]:
+    """
+    Returns all unique receiver usernames from the list of Snap objects.
+
+    :param snaps: a list of Snap objects
+    :return: a set of unique usernames
+    """
+
+    receiver_names = {snap.receiver for snap in snaps}
+    return receiver_names

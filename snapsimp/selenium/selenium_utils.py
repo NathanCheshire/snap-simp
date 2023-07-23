@@ -1,9 +1,9 @@
+from enum import Enum
 from typing import  List, Tuple
 from bs4 import BeautifulSoup
 from snaps.snap import Snap
 from selenium.table_elements import TableElements
 from snaps.snap_type import SnapType
-from snaps.snap_direction import SnapDirection
 from common.basic_user_info import BasicUserInfo
 from selenium.html_headers import HtmlHeaders
 
@@ -56,6 +56,11 @@ def parse_basic_user_info_from_account_html(filename: str) -> BasicUserInfo:
     return BasicUserInfo(username, name, creation_date)
 
 
+class SnapDirection(Enum):
+    SENT = "SENT"
+    RECEIVED = "RECEIVED"
+
+
 def parse_snap_history_table(table: BeautifulSoup, snap_direction: SnapDirection, my_name: str) -> List[Snap]:
     """
     Parses a nspa history table using the provided table. All snaps are tagged with the provided direction.
@@ -82,11 +87,11 @@ def parse_snap_history_table(table: BeautifulSoup, snap_direction: SnapDirection
         snap_type = SnapType.IMAGE if columns[TYPE_COLUMN_INDEX].get_text() == 'IMAGE' else SnapType.VIDEO
         timestamp = columns[TIMESTAMP_COLUMN_INDEX].get_text()
 
-        # If we received this snap, then sender is other acount username
+        # If we received this snap, then the sender is other account username
         if snap_direction == SnapDirection.RECEIVED:
-            snaps.append(Snap(other_account_username, my_name, snap_type, timestamp, snap_direction))
+            snaps.append(Snap(other_account_username, my_name, snap_type, timestamp))
         else:
-            snaps.append(Snap(my_name, other_account_username, snap_type, timestamp, snap_direction))
+            snaps.append(Snap(my_name, other_account_username, snap_type, timestamp))
 
     return snaps
 

@@ -1,5 +1,5 @@
 from datetime import timedelta
-from typing import Dict, List, Set
+from typing import Dict, List, Tuple
 from collections import Counter
 import snaps.filtering as filtering
 from snaps.snap import Snap
@@ -7,38 +7,48 @@ import snaps.filtering as filtering
 from common.date_range import DateRange
 from snaps.snap_type import SnapType
 from common.descriptive_stats import DescriptiveStatsTimedelta
-from snaps.snap_direction import SnapDirection
 from statistics import mean
 
-def compute_snap_count(snaps: List[Snap], direction: SnapDirection) -> Dict[str, int]:
+def compute_snap_count(snaps: List[Snap]) -> Tuple[Dict[str, int], Dict[str, int]]:
     """
-    Computes and returns a dictionary detailing the count of each unique sender/receiver.
+    Computes and returns a dictionary detailing the count of each unique sender and receiver.
 
     Example returned schema:
-    {
-        "mybestfriend": 143,
-        "mysister": 22,
-        "mycousin": 15
-    }
+    (
+        {
+            "mybestfriend": 143,
+            "mysister": 22,
+            "mycousin": 15
+        }
+        {
+            "mybestfriend": 143,
+            "mysister": 22,
+            "mycousin": 15
+        }
+    )
 
     :param snaps: the list of snaps to compute the sender count of
-    :param direction: the direction to compute the snap count of, sent/received
-    :return: a dictionary detailing the count of a particular sender/receiver
+    :return: a tuple containing two dictionaries, the first details the snap counts
+    of the sender usernames and the second details the snap counts of the receiving usernames
     """
 
-    if direction == SnapDirection.SENT:
-        username_count = Counter(snap.sender for snap in snaps)
-    else:
-        username_count = Counter(snap.receiver for snap in snaps)
+    sender_username_count = Counter(snap.sender for snap in snaps)
+    receiver_username_count = Counter(snap.receiver for snap in snaps)
 
-    sorted_username_counts = sorted(username_count.items(), key=lambda item: item[1], reverse=True)
-    sorted_username_dict = dict(sorted_username_counts)
-    return sorted_username_dict
+    sorted_sender_username_counts = sorted(sender_username_count.items(), key=lambda item: item[1], reverse=True)
+    sorted_receiver_username_counts = sorted(receiver_username_count.items(), key=lambda item: item[1], reverse=True)
+
+    sorted_sender_username_dict = dict(sorted_sender_username_counts)
+    sorted_receiver_username_dict = dict(sorted_receiver_username_counts)
+
+    return sorted_sender_username_dict, sorted_receiver_username_dict
 
 
 def get_snap_type_count(snaps: List[Snap]) -> Dict[SnapType, int]:
     """
     Count the number of each type of snap in the given list.
+
+    todo example schema here
 
     :param snaps: The list of Snap objects to analyze
     :return: A dictionary mapping each snap type to its count
@@ -48,35 +58,33 @@ def get_snap_type_count(snaps: List[Snap]) -> Dict[SnapType, int]:
     return type_counts
 
 
-def get_image_to_video_ratio_by_username(snaps: List[Snap], username: str, direction: SnapDirection) -> float:
+def get_image_to_video_ratio_by_sending_user(snaps: List[Snap], username: str) -> float:
     """
     Returne the image to video snap ratio of the provided username.
 
     :param snaps: the list of snaps
     :param username: the username to return the image to video snap ratio of from within the provided snaps list.
-    :param direction: the direction for computing the image to video ratio of, such as the ratio of sent images to videos
-    or the ratio of received images to videos of a particular user
     """
 
-    snaps_by_username = filtering.get_snaps_by_user(snaps, username, direction)
+    snaps_by_username = filtering.get_snaps_by_sending_user(snaps, username)
     image_snaps, video_snaps = filtering.filter_snaps_by_type(snaps_by_username)
     return len(image_snaps) / len(video_snaps)
 
-def get_image_to_video_ratio_by_top_username(snaps: List[Snap], direction: SnapDirection) -> float:
+
+def get_image_to_video_ratio_by_top_sender(snaps: List[Snap]) -> float:
     """
     Returns the image to video snap ratio of the user with the most snaps of the provided list.
 
     :param snaps: the list of snaps
-    :param direction: the direction to compute the image to video snap ratio of
     :return: the image to video snap ratio of the user with the most snaps in the list. For example,
     if this was the snaps you received, this would return the ratio of image to video snaps of the person
     who sent you the most snaps
     """
 
-    return get_image_to_video_ratio_by_username(snaps, filtering.get_top_username(snaps), direction)
+    return get_image_to_video_ratio_by_sending_user(snaps, filtering.get_top_sender_username(snaps))
 
 
-def get_number_of_snaps_by_username(snaps: List[Snap], username: str):
+def get_number_of_snaps_by_sender(snaps: List[Snap], username: str):
     """
     Returns the number of snaps by by the following username in the provided set.
 
@@ -120,20 +128,23 @@ def get_date_range(snaps: List[Snap]) -> DateRange:
     return DateRange(time_ordered[0].timestamp, time_ordered[-1].timestamp)
 
 
-def get_duration_of_snap_with_top_snapper(snaps: List[Snap], direction: SnapDirection) -> timedelta:
+def get_duration_of_snap_with_top_sender(snaps: List[Snap]) -> timedelta:
     """
     Returns the duration of the snaps sent or received from the top snapper from within the list.
-    For example, if a snap direction of received is provided, the returned time delta will convey how long
-    you have been receiving snaps from the top person who snaps you in this list.
 
     :param snaps: the list of snaps
-    :param direction: the direction of snaps
     """
 
-    top_user_snaps = filtering.get_snaps_by_top_username(snaps, direction)
+    top_user_snaps = filtering.get_snaps_by_top_sender(snaps)
     return get_date_range(top_user_snaps).duration()
 
 
+
+
+
+
+
+# this method should accept a conversation object
 def calculate_descriptive_stats_between_snaps_of_top_user(sent_snaps: List[Snap], received_snaps: List[Snap]) -> DescriptiveStatsTimedelta:
     """
     Computes and returns the descriptive stats between the top person you send and receive snaps to/from.
