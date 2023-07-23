@@ -47,3 +47,7 @@ class SnapchatSnapConversation:
     def get_dominant_receiver(self):
         receiver_counts = Counter([snap.receiver for snap in self.snaps])
         return receiver_counts.most_common(1)[0][0]
+    
+    def get_conversation_duration(self):
+        return self.get_latest_snap_date() - self.get_earlier_snap_date()
+

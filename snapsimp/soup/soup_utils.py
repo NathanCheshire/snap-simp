@@ -2,10 +2,10 @@ from enum import Enum
 from typing import  List, Tuple
 from bs4 import BeautifulSoup
 from snaps.snap import Snap
-from selenium.table_elements import TableElements
+from soup.table_elements import TableElements
 from snaps.snap_type import SnapType
 from common.basic_user_info import BasicUserInfo
-from selenium.html_headers import HtmlHeaders
+from soup.html_headers import HtmlHeaders
 
 
 # Constants for the snap_history.html file.
