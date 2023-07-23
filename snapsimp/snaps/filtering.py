@@ -73,7 +73,7 @@ def get_snaps_by_top_receiver(snaps: List[Snap]) -> List[Snap]:
     """
 
     top_receiver = get_top_receiver_username(snaps)
-    return get_snaps_by_sending_user(snaps, top_receiver)
+    return get_snaps_by_receiving_user(snaps, top_receiver)
 
 
 def filter_snaps_by_type(snaps: List[Snap]) -> Tuple[List[Snap], List[Snap]]:

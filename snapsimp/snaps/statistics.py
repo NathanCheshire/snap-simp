@@ -1,4 +1,5 @@
 from datetime import timedelta
+from datetime import datetime
 from typing import Dict, List, Tuple
 from collections import Counter
 import snaps.filtering as filtering
@@ -6,6 +7,7 @@ from snaps.snap import Snap
 import snaps.filtering as filtering
 from common.date_range import DateRange
 from snaps.snap_type import SnapType
+from common.time_helpers import generate_ordered_date_range
 
 def compute_snap_count(snaps: List[Snap]) -> Tuple[Dict[str, int], Dict[str, int]]:
     """
@@ -181,6 +183,21 @@ def get_duration_of_snap_with_top_receiver(snaps: List[Snap]) -> timedelta:
 
     top_receiver_snaps = filtering.get_snaps_by_top_receiver(snaps)
     return get_date_range(top_receiver_snaps).duration()
+
+
+def get_days_top_sender_did_not_send(snaps: List[Snap]) -> List[datetime]:
+    top_sender_snaps = filtering.get_snaps_by_top_sender(snaps)
+    days_top_sender_sent = {snap.timestamp.date() for snap in top_sender_snaps}
+
+    min_date = min(days_top_sender_sent)
+    max_date = max(days_top_sender_sent)
+
+    all_days_sorted = generate_ordered_date_range(min_date, max_date)
+
+    for day in all_days_sorted:
+        print(day)
+
+    return []
 
 
 # this method should accept a conversation object
