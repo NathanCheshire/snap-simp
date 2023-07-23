@@ -1,7 +1,7 @@
 import argparse
 from selenium.selenium_utils import extract_snap_history, parse_basic_user_info_from_account_html
 from snaps.filtering import get_snaps_by_top_receiver, get_snaps_by_top_sender, filter_snaps_by_type
-from snaps.statistics import get_days_top_sender_sent, get_days_top_sender_did_not_send
+from snaps.statistics import get_days_top_sender_sent, get_days_top_sender_did_not_send, get_days_top_receiver_did_not_receive, get_days_top_receiver_received
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='A parser for Snapchat data exports')
@@ -20,3 +20,6 @@ if __name__ == '__main__':
 
     days_she_sent = get_days_top_sender_sent(received)
     days_she_did_not_send = get_days_top_sender_did_not_send(received)
+
+    days_i_sent = get_days_top_receiver_received(sent)
+    days_i_did_not_send = get_days_top_receiver_did_not_receive(sent)

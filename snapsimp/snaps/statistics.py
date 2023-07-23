@@ -192,7 +192,7 @@ def get_days_top_sender_did_not_send(snaps: List[Snap]) -> List[datetime]:
     max_date = max(days_top_sender_sent)
 
     all_days_sorted = generate_ordered_date_range(min_date, max_date)
-    days_top_sender_did_not_send = list(set(all_days_sorted) - days_top_sender_sent)
+    days_top_sender_did_not_send = list(set(all_days_sorted) - set(days_top_sender_sent))
     days_top_sender_did_not_send_sorted = sorted(days_top_sender_did_not_send)
 
     return days_top_sender_did_not_send_sorted
@@ -205,7 +205,7 @@ def get_days_top_receiver_did_not_receive(snaps: List[Snap]) -> List[datetime]:
     max_date = max(days_top_receiver_received)
 
     all_days_sorted = generate_ordered_date_range(min_date, max_date)
-    days_top_receiver_did_not_receive = list(set(all_days_sorted) - days_top_receiver_received)
+    days_top_receiver_did_not_receive = list(set(all_days_sorted) - set(days_top_receiver_received))
     days_top_receiver_did_not_receive_sorted = sorted(days_top_receiver_did_not_receive)
 
     return days_top_receiver_did_not_receive_sorted
