@@ -1,6 +1,7 @@
 import argparse
 from snaps.snapchat_snap_conversation import SnapchatSnapConversation
-from soup.soup_utils import extract_snap_history, parse_basic_user_info_from_account_html
+from soup.snap_history_parsing import extract_snap_history
+from soup.account_parsing import parse_basic_user_info
 from snaps.filtering import get_snaps_by_top_receiver, get_snaps_by_top_sender, filter_snaps_by_type
 from snaps.statistics import get_days_top_sender_sent, get_days_top_sender_did_not_send, get_days_top_receiver_did_not_receive, get_days_top_receiver_received
 
@@ -10,7 +11,7 @@ if __name__ == '__main__':
     parser.add_argument('-acc', '--account-file', help='The path to the Snapchat account HTML file', default='html/account.html')
     args = parser.parse_args()
 
-    basic_user_info = parse_basic_user_info_from_account_html(args.account_file)
+    basic_user_info = parse_basic_user_info(args.account_file)
     received, sent = extract_snap_history(args.snap_history_file, basic_user_info.username) 
 
     top_sender_to_me_snaps = get_snaps_by_top_sender(received)
@@ -27,4 +28,3 @@ if __name__ == '__main__':
 
     our_snaps = top_sender_to_me_snaps + top_receiver_from_me_snaps
     conversation = SnapchatSnapConversation(our_snaps)
-    
