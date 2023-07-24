@@ -103,7 +103,7 @@ class SnapchatSnapConversation:
 
         :return: a timedelta object representing the duration of the conversation.
         """
-        return self.get_latest_snap_date() - self.get_earlier_snap_date()
+        return self.get_latest_snap_date() - self.get_earlist_snap_date()
 
     def get_num_snaps_sent_by_dominant_sender(self) -> int:
         """
@@ -222,7 +222,7 @@ class SnapchatSnapConversation:
         return DescriptiveStatsTimedelta(min_diff, avg_diff, max_diff)
     
     def __str__(self):
-        return f"SnapchatSnapConversation(users={self.users}, num_snaps={len(self.snaps)}, earliest_snap_date={self.get_earlier_snap_date()}, latest_snap_date={self.get_latest_snap_date()})"
+        return f"SnapchatSnapConversation(users={self.users}, num_snaps={len(self.snaps)}, earliest_snap_date={self.get_earlist_snap_date()}, latest_snap_date={self.get_latest_snap_date()})"
 
     def __repr__(self):
         return self.__str__()
