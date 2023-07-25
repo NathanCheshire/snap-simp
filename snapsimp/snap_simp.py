@@ -32,3 +32,6 @@ if __name__ == '__main__':
 
     our_snaps = top_sender_to_me_snaps + top_receiver_from_me_snaps
     conversation = SnapchatSnapConversation(our_snaps)
+
+    print(conversation.calculate_descriptive_response_stats_of_receiver('nathanvcheshire'))
+    print(conversation.calculate_descriptive_response_stats_of_receiver('darkneonshadows'))

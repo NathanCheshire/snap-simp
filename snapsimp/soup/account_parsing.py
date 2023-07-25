@@ -1,33 +1,38 @@
 from datetime import datetime
-from enum import Enum
 import re
 from typing import List
 from common.basic_user_info import BasicUserInfo
 from common.device_info import DeviceInformation
 from common.device_history import DeviceHistory
 from common.login_history import LoginHistory
+from soup.login_history_label import LoginHistoryLabel
+from soup.device_history_label import DeviceHistoryLabel
+from soup.account_table import AccountTable
 from soup.html_headers import HtmlHeaders
 from soup.table_elements import TableElements
 from bs4 import BeautifulSoup
 
 
-HTML_HEADERS = ["Basic Information", "Device Information", "Device History", "Login History"]
+def __get_soup_and_check_headers(filename: str) -> BeautifulSoup:
+    """
+    Reads the html file provided and confirms it looks like a standard account.html file.
 
-class DeviceHistoryLabel(Enum):
-    MAKE = "Make:"
-    MODEL = "Model:"
-    START_TIME = "Start Time:"
-    DEVICE_TYPE = "Device Type:"
+    :param filename: the path to the account.html file
+    :return: a beautiful soup object
+    """
+    with open(filename, 'r') as f:
+        soup = BeautifulSoup(f.read(), 'html.parser')
 
-class LoginHistoryLabel(Enum):
-    IP = "IP:"
-    COUNTRY = "Country:"
-    CREATED = "Created:"
-    STATUS = "Status:"
-    DEVICE = "Device:"
+    headers = soup.find_all(HtmlHeaders.H3.value)
 
-deivce_history_labels = [DeviceHistoryLabel.MAKE.value, DeviceHistoryLabel.MODEL.value, DeviceHistoryLabel.START_TIME.value, DeviceHistoryLabel.DEVICE_TYPE.value]
+    if len(headers) != len(AccountTable):
+        raise ValueError(f"Unexpected number of {HtmlHeaders.H3.value} headers. Expected {len(AccountTable)}, found {len(headers)}")
 
+    for i, info_table in enumerate(AccountTable):
+        if headers[i].text.lower() != info_table.name.replace('_', ' ').lower():
+            raise ValueError(f"Unexpected {HtmlHeaders.H3.value} header at position {i}. Expected '{info_table.name.replace('_', ' ')}', found '{headers[i].text}'")
+        
+    return soup
 
 def parse_basic_user_info(filename: str) -> BasicUserInfo:
     """
@@ -36,20 +41,7 @@ def parse_basic_user_info(filename: str) -> BasicUserInfo:
     :param filename: the path to the html file containing the account data
     :return: a BasicUserInfo object
     """
-
-    with open(filename, 'r') as f:
-        soup = BeautifulSoup(f.read(), 'html.parser')
-
-    headers = soup.find_all(HtmlHeaders.H3.value)
-
-    if len(headers) != len(HTML_HEADERS):
-        raise ValueError(f"Unexpected number of {HtmlHeaders.H3.value} headers. Expected {len(HTML_HEADERS)}, found {len(headers)}")
-
-    for i in range(len(HTML_HEADERS)):
-        if headers[i].text != HTML_HEADERS[i]:
-            raise ValueError(f"Unexpected {HtmlHeaders.H3.value} header at position {i}. Expected '{HTML_HEADERS[i]}', found '{headers[i].text}'")
-
-    table = soup.find(TableElements.TABLE.value)
+    table = __get_soup_and_check_headers(filename).find(TableElements.TABLE.value)
     rows = table.find_all(TableElements.TABLE_ROW.value)
 
     username_row = rows[0]
@@ -62,6 +54,7 @@ def parse_basic_user_info(filename: str) -> BasicUserInfo:
 
     return BasicUserInfo(username, name, creation_date)
 
+
 def parse_device_information(filename: str) -> DeviceInformation:
     """
     Extracts the device information from a standard account.html file.
@@ -69,19 +62,7 @@ def parse_device_information(filename: str) -> DeviceInformation:
     :param filename: the path to the html file containing the device information data
     :return: a DeviceInformation object
     """
-    with open(filename, 'r') as f:
-        soup = BeautifulSoup(f.read(), 'html.parser')
-
-    headers = soup.find_all(HtmlHeaders.H3.value)
-
-    if len(headers) != len(HTML_HEADERS):
-        raise ValueError(f"Unexpected number of {HtmlHeaders.H3.value} headers. Expected {len(HTML_HEADERS)}, found {len(headers)}")
-
-    for i in range(len(HTML_HEADERS)):
-        if headers[i].text != HTML_HEADERS[i]:
-            raise ValueError(f"Unexpected {HtmlHeaders.H3.value} header at position {i}. Expected '{HTML_HEADERS[i]}', found '{headers[i].text}'")
-
-    tables = soup.find_all(TableElements.TABLE.value)
+    tables = __get_soup_and_check_headers(filename).find_all(TableElements.TABLE.value)
     device_information_table = tables[1]
 
     rows = device_information_table.find_all(TableElements.TABLE_ROW.value)
@@ -105,6 +86,7 @@ def parse_device_information(filename: str) -> DeviceInformation:
 
     return DeviceInformation(make, model_id, model_name, user_agent, language, os_type, os_version, connection_type)
 
+
 def __parse_device_history_row(row) -> DeviceHistory:
     """
     Extracts the device history from a BeautifulSoup row object.
@@ -115,17 +97,22 @@ def __parse_device_history_row(row) -> DeviceHistory:
     row_str = re.sub("<.*?>", "", str(row))
     device_info = {}
 
-    for i in range(len(deivce_history_labels)-1):
-        start = row_str.find(deivce_history_labels[i]) + len(deivce_history_labels[i])
-        end = row_str.find(deivce_history_labels[i+1])
-        device_info[deivce_history_labels[i]] = row_str[start:end].strip()
+    labels = list(DeviceHistoryLabel.__members__.values())
 
-    device_info[deivce_history_labels[-1]] = row_str[row_str.find(deivce_history_labels[-1]) + len(deivce_history_labels[-1]):].strip()
+    for i in range(len(labels)-1):
+        start = row_str.find(str(labels[i].value)) + len(str(labels[i].value))
+        end = row_str.find(str(labels[i+1].value))
+        device_info[labels[i].value] = row_str[start:end].strip()
 
-    return DeviceHistory(make=device_info[DeviceHistoryLabel.MAKE.value],
-                         model=device_info[DeviceHistoryLabel.MODEL.value],
-                         start_time=device_info[DeviceHistoryLabel.START_TIME.value],
-                         device_type=device_info[DeviceHistoryLabel.DEVICE_TYPE.value])
+    device_info[labels[-1].value] = row_str[row_str.find(str(labels[-1].value)) + len(str(labels[-1].value)):].strip()
+
+    return DeviceHistory(
+        make=device_info[DeviceHistoryLabel.MAKE.value],
+        model=device_info[DeviceHistoryLabel.MODEL.value],
+        start_time=device_info[DeviceHistoryLabel.START_TIME.value],
+        device_type=device_info[DeviceHistoryLabel.DEVICE_TYPE.value]
+    )
+
 
 def parse_device_history(filename: str) -> List[DeviceHistory]:
     """
@@ -134,24 +121,13 @@ def parse_device_history(filename: str) -> List[DeviceHistory]:
     :param filename: the path to the html file containing the device history data
     :return: a DeviceHistory object
     """
-    with open(filename, 'r') as f:
-        soup = BeautifulSoup(f.read(), 'html.parser')
-
-    headers = soup.find_all(HtmlHeaders.H3.value)
-
-    if len(headers) != len(HTML_HEADERS):
-        raise ValueError(f"Unexpected number of {HtmlHeaders.H3.value} headers. Expected {len(HTML_HEADERS)}, found {len(headers)}")
-
-    for i in range(len(HTML_HEADERS)):
-        if headers[i].text != HTML_HEADERS[i]:
-            raise ValueError(f"Unexpected {HtmlHeaders.H3.value} header at position {i}. Expected '{HTML_HEADERS[i]}', found '{headers[i].text}'")
-
-    tables = soup.find_all(TableElements.TABLE.value)
+    tables = __get_soup_and_check_headers(filename).find_all(TableElements.TABLE.value)
     device_history_table = tables[2]
     rows = device_history_table.find_all(TableElements.TABLE_ROW.value)
 
     device_histories = [__parse_device_history_row(row) for row in rows]
     return device_histories
+
 
 def __parse_login_history_row(row) -> LoginHistory:
     """
@@ -178,6 +154,10 @@ def __parse_login_history_row(row) -> LoginHistory:
                         device=login_info[LoginHistoryLabel.DEVICE.value])
 
 
+TABLES_INDICIES = {
+
+}
+
 def parse_login_history(filename: str) -> List[LoginHistory]:
     """
     Extracts the login history from a standard account.html file.
@@ -185,19 +165,7 @@ def parse_login_history(filename: str) -> List[LoginHistory]:
     :param filename: the path to the html file containing the login history data
     :return: a LoginHistory object
     """
-    with open(filename, 'r') as f:
-        soup = BeautifulSoup(f.read(), 'html.parser')
-
-    headers = soup.find_all(HtmlHeaders.H3.value)
-
-    if len(headers) != len(HTML_HEADERS):
-        raise ValueError(f"Unexpected number of {HtmlHeaders.H3.value} headers. Expected {len(HTML_HEADERS)}, found {len(headers)}")
-
-    for i in range(len(HTML_HEADERS)):
-        if headers[i].text != HTML_HEADERS[i]:
-            raise ValueError(f"Unexpected {HtmlHeaders.H3.value} header at position {i}. Expected '{HTML_HEADERS[i]}', found '{headers[i].text}'")
-
-    tables = soup.find_all(TableElements.TABLE.value)
+    tables = __get_soup_and_check_headers(filename).find_all(TableElements.TABLE.value)
     device_history_table = tables[3]
     rows = device_history_table.find_all(TableElements.TABLE_ROW.value)
 
