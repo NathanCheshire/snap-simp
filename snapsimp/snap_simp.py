@@ -7,8 +7,8 @@ from snaps.statistics import get_days_top_sender_sent, get_days_top_sender_did_n
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='A parser for Snapchat data exports')
-    parser.add_argument('-sh', '--snap-history-file', help='The path to the Snapchat snap history HTML file', default='html/snap_history.html')
-    parser.add_argument('-acc', '--account-file', help='The path to the Snapchat account HTML file', default='html/account.html')
+    parser.add_argument('-shf', '--snap-history-file', help='The path to the Snapchat snap history HTML file', default='html/snap_history.html')
+    parser.add_argument('-af', '--account-file', help='The path to the Snapchat account HTML file', default='html/account.html')
     args = parser.parse_args()
 
     basic_user_info = parse_basic_user_info(args.account_file)
@@ -33,5 +33,4 @@ if __name__ == '__main__':
     our_snaps = top_sender_to_me_snaps + top_receiver_from_me_snaps
     conversation = SnapchatSnapConversation(our_snaps)
 
-    print(conversation.calculate_descriptive_response_stats_of_receiver('nathanvcheshire'))
-    print(conversation.calculate_descriptive_response_stats_of_receiver('darkneonshadows'))
+    print('End Program')
