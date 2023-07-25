@@ -5,6 +5,8 @@ from common.basic_user_info import BasicUserInfo
 from common.device_info import DeviceInformation
 from common.device_history import DeviceHistory
 from common.login_history import LoginHistory
+from soup.device_information_row_indicie import DeviceInformationRowIndicie
+from soup.basic_user_info_row_indicie import BasicUserInfoRowIndicie
 from soup.login_history_label import LoginHistoryLabel
 from soup.device_history_label import DeviceHistoryLabel
 from soup.account_table import AccountTable
@@ -34,6 +36,7 @@ def __get_soup_and_check_headers(filename: str) -> BeautifulSoup:
         
     return soup
 
+
 def parse_basic_user_info(filename: str) -> BasicUserInfo:
     """
     Extracts the basic information from a standard account.html file.
@@ -44,9 +47,9 @@ def parse_basic_user_info(filename: str) -> BasicUserInfo:
     table = __get_soup_and_check_headers(filename).find(TableElements.TABLE.value)
     rows = table.find_all(TableElements.TABLE_ROW.value)
 
-    username_row = rows[0]
-    name_row = rows[1]
-    creation_date_row = rows[2]
+    username_row = rows[BasicUserInfoRowIndicie.USERNAME_ROW.value]
+    name_row = rows[BasicUserInfoRowIndicie.NAME_ROW.value]
+    creation_date_row = rows[BasicUserInfoRowIndicie.CREATION_DATE_ROW.value]
 
     username = username_row.find_all(TableElements.TABLE_HEADER.value)[1].get_text().strip()
     name = name_row.find_all(TableElements.TABLE_HEADER.value)[1].get_text().strip()
@@ -66,14 +69,15 @@ def parse_device_information(filename: str) -> DeviceInformation:
     device_information_table = tables[1]
 
     rows = device_information_table.find_all(TableElements.TABLE_ROW.value)
-    make_row = rows[0]
-    model_row = rows[1]
-    model_name_row = rows[2]
-    user_agent_row = rows[3]
-    language_row = rows[4]
-    os_type_row = rows[5]
-    os_version_row = rows[6]
-    connection_type_row = rows[7]
+
+    make_row = rows[DeviceInformationRowIndicie.MAKE_ROW.value]
+    model_row = rows[DeviceInformationRowIndicie.MODEL_ROW.value]
+    model_name_row = rows[DeviceInformationRowIndicie.MODEL_NAME_ROW.value]
+    user_agent_row = rows[DeviceInformationRowIndicie.USER_AGENT_ROW.value]
+    language_row = rows[DeviceInformationRowIndicie.LANGUAGE_ROW.value]
+    os_type_row = rows[DeviceInformationRowIndicie.OS_TYPE_ROW.value]
+    os_version_row = rows[DeviceInformationRowIndicie.OS_VERSION_ROW.value]
+    connection_type_row = rows[DeviceInformationRowIndicie.CONNECTION_TYPE_ROW.value]
 
     make = make_row.find_all(TableElements.TABLE_HEADER.value)[1].text
     model_id = model_row.find_all(TableElements.TABLE_HEADER.value)[1].text
