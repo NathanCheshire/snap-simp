@@ -5,6 +5,7 @@ from common.basic_user_info import BasicUserInfo
 from common.device_info import DeviceInformation
 from common.device_history import DeviceHistory
 from common.login_history import LoginHistory
+from soup.account_table_indicie import AccountTableIndicie
 from soup.device_information_row_indicie import DeviceInformationRowIndicie
 from soup.basic_user_info_row_indicie import BasicUserInfoRowIndicie
 from soup.login_history_label import LoginHistoryLabel
@@ -44,8 +45,9 @@ def parse_basic_user_info(filename: str) -> BasicUserInfo:
     :param filename: the path to the html file containing the account data
     :return: a BasicUserInfo object
     """
-    table = __get_soup_and_check_headers(filename).find(TableElements.TABLE.value)
-    rows = table.find_all(TableElements.TABLE_ROW.value)
+    tables = __get_soup_and_check_headers(filename).find_all(TableElements.TABLE.value)
+    basic_user_info_table = tables[AccountTableIndicie.BASIC_USER_INFO.value]
+    rows = basic_user_info_table.find_all(TableElements.TABLE_ROW.value)
 
     username_row = rows[BasicUserInfoRowIndicie.USERNAME_ROW.value]
     name_row = rows[BasicUserInfoRowIndicie.NAME_ROW.value]
@@ -66,8 +68,7 @@ def parse_device_information(filename: str) -> DeviceInformation:
     :return: a DeviceInformation object
     """
     tables = __get_soup_and_check_headers(filename).find_all(TableElements.TABLE.value)
-    device_information_table = tables[1]
-
+    device_information_table = tables[AccountTableIndicie.DEVICE_INFO.value]
     rows = device_information_table.find_all(TableElements.TABLE_ROW.value)
 
     make_row = rows[DeviceInformationRowIndicie.MAKE_ROW.value]
@@ -126,7 +127,7 @@ def parse_device_history(filename: str) -> List[DeviceHistory]:
     :return: a DeviceHistory object
     """
     tables = __get_soup_and_check_headers(filename).find_all(TableElements.TABLE.value)
-    device_history_table = tables[2]
+    device_history_table = tables[AccountTableIndicie.DEVICE_HISTORY.value]
     rows = device_history_table.find_all(TableElements.TABLE_ROW.value)
 
     device_histories = [__parse_device_history_row(row) for row in rows]
@@ -158,10 +159,6 @@ def __parse_login_history_row(row) -> LoginHistory:
                         device=login_info[LoginHistoryLabel.DEVICE.value])
 
 
-TABLES_INDICIES = {
-
-}
-
 def parse_login_history(filename: str) -> List[LoginHistory]:
     """
     Extracts the login history from a standard account.html file.
@@ -170,7 +167,7 @@ def parse_login_history(filename: str) -> List[LoginHistory]:
     :return: a LoginHistory object
     """
     tables = __get_soup_and_check_headers(filename).find_all(TableElements.TABLE.value)
-    device_history_table = tables[3]
+    device_history_table = tables[AccountTableIndicie.LOGIN_HISTORY.value]
     rows = device_history_table.find_all(TableElements.TABLE_ROW.value)
 
     login_histories = [__parse_login_history_row(row) for row in rows]
