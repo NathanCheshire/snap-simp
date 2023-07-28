@@ -4,6 +4,7 @@ from common.basic_user_info import BasicUserInfo
 from common.device_info import DeviceInformation
 from common.device_history import DeviceHistory
 from common.login_history import LoginHistory
+from common.device_type import DeviceType
 from soup.indicies.account_table_indicie import AccountTableIndicie
 from soup.indicies.device_information_row_indicie import DeviceInformationRowIndicie
 from soup.indicies.basic_user_info_row_indicie import BasicUserInfoRowIndicie
@@ -13,6 +14,9 @@ from soup.account_table import AccountTable
 from soup.html_headers import HtmlHeaders
 from soup.table_elements import TableElements
 from bs4 import BeautifulSoup
+
+
+DEVICE_HISTORY_LABELS = list(DeviceHistoryLabel.__members__.values())
 
 
 def __get_soup_and_check_headers(filename: str) -> BeautifulSoup:
@@ -98,23 +102,29 @@ def __parse_device_history_row(row) -> DeviceHistory:
     :param row: BeautifulSoup object representing a table row containing the device history data
     :return: a DeviceHistory object
     """
-    row_str = re.sub("<.*?>", "", str(row))
     device_info = {}
 
-    labels = list(DeviceHistoryLabel.__members__.values())
+    soup = BeautifulSoup(str(row), 'html.parser')
 
-    for i in range(len(labels)-1):
-        start = row_str.find(str(labels[i].value)) + len(str(labels[i].value))
-        end = row_str.find(str(labels[i+1].value))
-        device_info[labels[i].value] = row_str[start:end].strip()
-
-    device_info[labels[-1].value] = row_str[row_str.find(str(labels[-1].value)) + len(str(labels[-1].value)):].strip()
+    for label in DEVICE_HISTORY_LABELS:
+        tag = soup.find('b', text=re.compile(f'^{label.value}'))
+        if tag:
+            value = tag.next_sibling
+            if value:
+                # Lowercase the device type
+                if label == DeviceHistoryLabel.DEVICE_TYPE:
+                    device_type = value.strip().lower()
+                    # Optional: Check if it's a known device type
+                    if device_type in DeviceType.__members__:
+                        device_info[label.value] = device_type
+                else:
+                    device_info[label.value] = value.strip()
 
     return DeviceHistory(
-        make=device_info[DeviceHistoryLabel.MAKE.value],
-        model=device_info[DeviceHistoryLabel.MODEL.value],
-        start_time=device_info[DeviceHistoryLabel.START_TIME.value],
-        device_type=device_info[DeviceHistoryLabel.DEVICE_TYPE.value]
+        make=device_info.get(DeviceHistoryLabel.MAKE.value, None),
+        model=device_info.get(DeviceHistoryLabel.MODEL.value, None),
+        start_time=device_info.get(DeviceHistoryLabel.START_TIME.value, None),
+        device_type=device_info.get(DeviceHistoryLabel.DEVICE_TYPE.value, None)
     )
 
 
