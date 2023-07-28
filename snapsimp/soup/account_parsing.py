@@ -5,9 +5,9 @@ from common.basic_user_info import BasicUserInfo
 from common.device_info import DeviceInformation
 from common.device_history import DeviceHistory
 from common.login_history import LoginHistory
-from soup.account_table_indicie import AccountTableIndicie
-from soup.device_information_row_indicie import DeviceInformationRowIndicie
-from soup.basic_user_info_row_indicie import BasicUserInfoRowIndicie
+from soup.indicies.account_table_indicie import AccountTableIndicie
+from soup.indicies.device_information_row_indicie import DeviceInformationRowIndicie
+from soup.indicies.basic_user_info_row_indicie import BasicUserInfoRowIndicie
 from soup.login_history_label import LoginHistoryLabel
 from soup.device_history_label import DeviceHistoryLabel
 from soup.account_table import AccountTable
