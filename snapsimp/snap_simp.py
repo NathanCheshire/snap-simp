@@ -1,7 +1,7 @@
 import argparse
 from snaps.snapchat_snap_conversation import SnapchatSnapConversation
 from soup.snap_history_parsing import extract_snap_history
-from soup.account_parsing import parse_basic_user_info, parse_device_information, parse_device_history, parse_login_history
+from soup.account_parsing import parse_all
 from snaps.filtering import get_snaps_by_top_receiver, get_snaps_by_top_sender, filter_snaps_by_type
 from snaps.statistics import get_days_top_sender_sent, get_days_top_sender_did_not_send, get_days_top_receiver_did_not_receive, get_days_top_receiver_received
 
@@ -11,10 +11,7 @@ if __name__ == '__main__':
     parser.add_argument('-af', '--account-file', help='The path to the Snapchat account HTML file', default='html/account.html')
     args = parser.parse_args()
 
-    basic_user_info = parse_basic_user_info(args.account_file)
-    device_information = parse_device_information(args.account_file)
-    device_history = parse_device_history(args.account_file)
-    login_history = parse_login_history(args.account_file)
+    basic_user_info, device_information, device_history, login_history = parse_all(args.account_file)
 
     received, sent = extract_snap_history(args.snap_history_file, basic_user_info.username) 
 

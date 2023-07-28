@@ -1,6 +1,6 @@
 from datetime import datetime
 import re
-from typing import List
+from typing import List, Tuple
 from common.basic_user_info import BasicUserInfo
 from common.device_info import DeviceInformation
 from common.device_history import DeviceHistory
@@ -172,3 +172,18 @@ def parse_login_history(filename: str) -> List[LoginHistory]:
 
     login_histories = [__parse_login_history_row(row) for row in rows]
     return login_histories
+
+
+def parse_all(filename: str) -> Tuple[BasicUserInfo, DeviceInformation, List[DeviceHistory], List[LoginHistory]]:
+    """
+    Parses and returns all data tables from the provided account.html file.
+
+    :param filename: the path to the html file
+    :return: a tuple containing the basic user info, device information, device history, and login history
+    """
+    basic_user_info = parse_basic_user_info(filename)
+    device_information = parse_device_information(filename)
+    device_history = parse_device_history(filename)
+    login_history = parse_login_history(filename)
+
+    return basic_user_info, device_information, device_history, login_history
