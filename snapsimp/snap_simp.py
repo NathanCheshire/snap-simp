@@ -28,6 +28,8 @@ if __name__ == '__main__':
     days_i_did_not_send = get_days_top_receiver_did_not_receive(sent)
 
     our_snaps = top_sender_to_me_snaps + top_receiver_from_me_snaps
-    conversation = SnapchatSnapConversation(our_snaps)
+    our_conversation = SnapchatSnapConversation(our_snaps)
+
+    print(our_conversation)
 
     print('End Program')

@@ -2,3 +2,4 @@ __pycache__/
 snap-simp-venv/
 *.html
 *.DS_Store
+.vscode/
