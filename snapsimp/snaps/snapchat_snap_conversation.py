@@ -28,7 +28,9 @@ class SnapchatSnapConversation:
         self.snaps = sorted(snaps, key=lambda snap: snap.timestamp)
         self.users = sending_users
 
-    def __check_initialization_constraints(self, sending_users: Set[str], receiving_users: Set[str]) -> None:
+    def __check_initialization_constraints(
+        self, sending_users: Set[str], receiving_users: Set[str]
+    ) -> None:
         """
         Checks if the provided users are valid for the conversation. The conversation must be between two users.
 
@@ -36,7 +38,9 @@ class SnapchatSnapConversation:
         :param receiving_users: the set of users who received snaps
         """
         if len(sending_users) != 2 or len(receiving_users) != 2:
-            raise AssertionError("All sent and received snaps must be from the same two users.")
+            raise AssertionError(
+                "All sent and received snaps must be from the same two users."
+            )
         if sending_users != receiving_users:
             raise AssertionError("Sending users and receiving users must be the same.")
 
@@ -196,7 +200,9 @@ class SnapchatSnapConversation:
 
         return switching_snaps
 
-    def calculate_descriptive_response_stats_of_receiver(self, receiver: str) -> DescriptiveStatsTimedelta:
+    def calculate_descriptive_response_stats_of_receiver(
+        self, receiver: str
+    ) -> DescriptiveStatsTimedelta:
         """
         Computes and returns the descriptive stats for the provided receiver. Namely, the minimum, average, and maximum
         time taken before they respond to the other person's snaps.
@@ -210,7 +216,11 @@ class SnapchatSnapConversation:
         latest_snaps_before_sender_switch = self.__get_switching_snaps()
 
         # Extract the timestamps of snaps sent by the receiver
-        receiver_snap_times = [snap.timestamp for snap in latest_snaps_before_sender_switch if snap.sender == receiver]
+        receiver_snap_times = [
+            snap.timestamp
+            for snap in latest_snaps_before_sender_switch
+            if snap.sender == receiver
+        ]
         # Pair each snap time with the next one (if it exists)
         paired_snap_times = list(zip(receiver_snap_times, receiver_snap_times[1:]))
         # Compute the time differences
@@ -218,7 +228,9 @@ class SnapchatSnapConversation:
 
         min_diff = min(awaiting_response_times)
         max_diff = max(awaiting_response_times)
-        avg_diff = timedelta(seconds=mean([diff.total_seconds() for diff in awaiting_response_times]))
+        avg_diff = timedelta(
+            seconds=mean([diff.total_seconds() for diff in awaiting_response_times])
+        )
 
         return DescriptiveStatsTimedelta(min_diff, avg_diff, max_diff)
 

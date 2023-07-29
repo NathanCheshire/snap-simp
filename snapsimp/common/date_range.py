@@ -3,7 +3,9 @@ from datetime import datetime, timedelta
 
 class DateRange:
     def __init__(self, start_date: datetime, end_date: datetime):
-        assert start_date <= end_date, "Start date must be less than or equal to end date"
+        assert (
+            start_date <= end_date
+        ), "Start date must be less than or equal to end date"
         self.start_date = start_date
         self.end_date = end_date
 
@@ -20,4 +22,6 @@ class DateRange:
 
     def overlaps(self, other: "DateRange") -> bool:
         """Check if this date range overlaps with another date range."""
-        return max(self.start_date, other.start_date) <= min(self.end_date, other.end_date)
+        return max(self.start_date, other.start_date) <= min(
+            self.end_date, other.end_date
+        )

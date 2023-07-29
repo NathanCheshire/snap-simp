@@ -30,9 +30,13 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    basic_user_info, device_information, device_history, login_history = parse_all(args.account_file)
+    basic_user_info, device_information, device_history, login_history = parse_all(
+        args.account_file
+    )
 
-    received, sent = extract_snap_history(args.snap_history_file, basic_user_info.username)
+    received, sent = extract_snap_history(
+        args.snap_history_file, basic_user_info.username
+    )
 
     top_sender_to_me_snaps = get_snaps_by_top_sender(received)
     top_receiver_from_me_snaps = get_snaps_by_top_receiver(sent)
