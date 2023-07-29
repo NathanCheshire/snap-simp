@@ -15,9 +15,9 @@ class SnapchatSnapConversation:
 
     def __init__(self, snaps: List[Snap]):
         """
-        Initialize a SnapchatSnapConversation instance.
+        Initializes a SnapchatSnapConversation instance.
 
-        :param snaps: the list of Snap objects for this conversation
+        :param snaps: the list of Snap objects for this conversation.
         It is expected that this list contains snaps between two and only two users
         """
         sending_users = {snap.sender for snap in snaps}

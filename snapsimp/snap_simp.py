@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
     received, sent = extract_snap_history(
         args.snap_history_file, basic_user_info.username)
-
+    
     top_sender_to_me_snaps = get_snaps_by_top_sender(received)
     top_receiver_from_me_snaps = get_snaps_by_top_receiver(sent)
 

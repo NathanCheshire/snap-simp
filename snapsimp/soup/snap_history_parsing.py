@@ -2,22 +2,19 @@ from enum import Enum
 from typing import List, Tuple
 from bs4 import BeautifulSoup
 from snaps.snap import Snap
+from snaps.snap_history_table_column_indicie import SnapHistoryTableColumnIndicie
+from common.snap_simp_enum import SnapSimpEnum
 from soup.table_elements import TableElements
 from snaps.snap_type import SnapType
 
 
-SNAP_HISTORY_NUM_TABLE_COLUMNS = 3
-SNAP_HISTORY_NUM_TABLES = 2
-RECEIVED_SNAPS_TABLE_INDEX = 0
-SENT_SNAPS_TABLE_INDEX = 1
-SENDER_COLUMN_INDEX = 0
-TYPE_COLUMN_INDEX = 1
-TIMESTAMP_COLUMN_INDEX = 2
+class __SnapDirection(SnapSimpEnum):
+    RECEIVED = 0
+    SENT = 1
 
-
-class __SnapDirection(Enum):
-    SENT = "SENT"
-    RECEIVED = "RECEIVED"
+    def __init__(self, table_index):
+        self.table_index = table_index
+        self.name_str = self.name
 
 
 def __parse_snap_history_table(table: BeautifulSoup, snap_direction: __SnapDirection, my_name: str) -> List[Snap]:
@@ -39,23 +36,45 @@ def __parse_snap_history_table(table: BeautifulSoup, snap_direction: __SnapDirec
     for row in rows:
         columns = row.find_all(TableElements.TABLE_DATA_CELL.value)
 
-        if len(columns) < SNAP_HISTORY_NUM_TABLE_COLUMNS:
+        if len(columns) != len(SnapHistoryTableColumnIndicie.values()):
             continue
 
-        other_account_username = columns[SENDER_COLUMN_INDEX].get_text()
-        snap_type = SnapType.IMAGE if columns[TYPE_COLUMN_INDEX].get_text(
-        ) == 'IMAGE' else SnapType.VIDEO
-        timestamp = columns[TIMESTAMP_COLUMN_INDEX].get_text()
+        other_account_username = columns[SnapHistoryTableColumnIndicie.SENDER.value].get_text(
+        )
+        snap_type = SnapType.IMAGE if columns[SnapHistoryTableColumnIndicie.TYPE.value].get_text(
+        ) == SnapType.IMAGE.value else SnapType.VIDEO
+        timestamp = columns[SnapHistoryTableColumnIndicie.TIME_STAMP.value].get_text(
+        )
 
-        # If we received this snap, then the sender is other account username
-        if snap_direction == __SnapDirection.RECEIVED:
-            snaps.append(Snap(other_account_username,
-                         my_name, snap_type, timestamp))
-        else:
-            snaps.append(
-                Snap(my_name, other_account_username, snap_type, timestamp))
+        sender = __get_sender(snap_direction, my_name, other_account_username)
+        receiver = __get_receiver(
+            snap_direction, my_name, other_account_username)
+
+        snaps.append(Snap(sender, receiver, snap_type, timestamp))
 
     return snaps
+
+
+def __get_sender(snap_direction: __SnapDirection, my_name: str, other_name: str) -> str:
+    """
+    Returns the person who sent a snap based on the direction.
+
+    :param snap_direction: the snap direction i.e. whether we received or sent the snap
+    :param my_name: your account username
+    :param other_name: the other person's account username
+    """
+    return other_name if snap_direction == __SnapDirection.RECEIVED else my_name
+
+
+def __get_receiver(snap_direction: __SnapDirection, my_name: str, other_name: str) -> str:
+    """
+    Returns the person who received a snap based on the direction.
+
+    :param snap_direction: the snap direction i.e. whether we received or sent the snap
+    :param my_name: your account username
+    :param other_name: the other person's account username
+    """
+    return my_name if snap_direction == __SnapDirection.RECEIVED else other_name
 
 
 def extract_snap_history(snap_history_file_name: str, my_name: str) -> Tuple[List[Snap], List[Snap]]:
@@ -74,13 +93,13 @@ def extract_snap_history(snap_history_file_name: str, my_name: str) -> Tuple[Lis
 
     tables = soup.find_all(TableElements.TABLE.value)
 
-    if len(tables) != SNAP_HISTORY_NUM_TABLES:
+    if len(tables) != len(__SnapDirection.values()):
         raise AssertionError(
-            f"Error: A table amount not equal to {SNAP_HISTORY_NUM_TABLES} tables found in {snap_history_file_name}; num tables: {len(tables)}")
+            f"Error: A table amount not equal to {len(__SnapDirection.values())} tables found in {snap_history_file_name}; num tables: {len(tables)}")
 
     received_snaps = __parse_snap_history_table(
-        tables[RECEIVED_SNAPS_TABLE_INDEX], __SnapDirection.RECEIVED, my_name)
+        tables[__SnapDirection.RECEIVED.table_index], __SnapDirection.RECEIVED, my_name)
     sent_snaps = __parse_snap_history_table(
-        tables[SENT_SNAPS_TABLE_INDEX], __SnapDirection.SENT, my_name)
+        tables[__SnapDirection.SENT.table_index], __SnapDirection.SENT, my_name)
 
     return received_snaps, sent_snaps
