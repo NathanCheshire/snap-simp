@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+
 class DateRange:
     def __init__(self, start_date: datetime, end_date: datetime):
         assert start_date <= end_date, "Start date must be less than or equal to end date"

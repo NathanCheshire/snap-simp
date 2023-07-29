@@ -2,6 +2,7 @@ from datetime import datetime
 
 from snaps.snap_type import SnapType
 
+
 class Snap:
     def __init__(self, sender, receiver, type, timestamp):
         self.sender = sender

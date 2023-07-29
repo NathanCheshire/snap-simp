@@ -1,4 +1,4 @@
-from typing import  List, Set, Tuple
+from typing import List, Set, Tuple
 from snaps.snap import Snap
 import snaps.statistics as stats
 from snaps.snap_type import SnapType

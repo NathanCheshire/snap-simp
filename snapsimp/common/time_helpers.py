@@ -6,7 +6,7 @@ from typing import List
 def _daterange(start_date: datetime.date, end_date: datetime.date) -> datetime.date:
     """
     Generates a range of dates from start_date to end_date (inclusive).
-    
+
     :param start_date: The start date of the range
     :param end_date: The end date of the range
 
@@ -19,10 +19,10 @@ def _daterange(start_date: datetime.date, end_date: datetime.date) -> datetime.d
         current_date += timedelta(days=1)
 
 
-def generate_ordered_date_range(min_date: datetime.date, max_date: datetime.date, ascending = True) -> List[datetime.date]:
+def generate_ordered_date_range(min_date: datetime.date, max_date: datetime.date, ascending=True) -> List[datetime.date]:
     """
     Generates an ordered list of dates between a given start and end date.
-    
+
     :param min_date: the earliest date (inclusive) in the range
     :param max_date: the latest date (inclusive) in the range
     :param ascending: whether the dates should be in ascending or descending order

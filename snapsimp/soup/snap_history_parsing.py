@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import  List, Tuple
+from typing import List, Tuple
 from bs4 import BeautifulSoup
 from snaps.snap import Snap
 from soup.table_elements import TableElements
@@ -29,7 +29,7 @@ def __parse_snap_history_table(table: BeautifulSoup, snap_direction: __SnapDirec
     :param my_name: your snapchat account username
     :return: a list of Snap objects
     """
-    
+
     snaps = []
     if not table:
         return snaps
@@ -43,14 +43,17 @@ def __parse_snap_history_table(table: BeautifulSoup, snap_direction: __SnapDirec
             continue
 
         other_account_username = columns[SENDER_COLUMN_INDEX].get_text()
-        snap_type = SnapType.IMAGE if columns[TYPE_COLUMN_INDEX].get_text() == 'IMAGE' else SnapType.VIDEO
+        snap_type = SnapType.IMAGE if columns[TYPE_COLUMN_INDEX].get_text(
+        ) == 'IMAGE' else SnapType.VIDEO
         timestamp = columns[TIMESTAMP_COLUMN_INDEX].get_text()
 
         # If we received this snap, then the sender is other account username
         if snap_direction == __SnapDirection.RECEIVED:
-            snaps.append(Snap(other_account_username, my_name, snap_type, timestamp))
+            snaps.append(Snap(other_account_username,
+                         my_name, snap_type, timestamp))
         else:
-            snaps.append(Snap(my_name, other_account_username, snap_type, timestamp))
+            snaps.append(
+                Snap(my_name, other_account_username, snap_type, timestamp))
 
     return snaps
 
@@ -71,10 +74,13 @@ def extract_snap_history(snap_history_file_name: str, my_name: str) -> Tuple[Lis
 
     tables = soup.find_all(TableElements.TABLE.value)
 
-    if len(tables) != SNAP_HISTORY_NUM_TABLES: 
-        raise AssertionError(f"Error: A table amount not equal to {SNAP_HISTORY_NUM_TABLES} tables found in {snap_history_file_name}; num tables: {len(tables)}")
+    if len(tables) != SNAP_HISTORY_NUM_TABLES:
+        raise AssertionError(
+            f"Error: A table amount not equal to {SNAP_HISTORY_NUM_TABLES} tables found in {snap_history_file_name}; num tables: {len(tables)}")
 
-    received_snaps = __parse_snap_history_table(tables[RECEIVED_SNAPS_TABLE_INDEX], __SnapDirection.RECEIVED, my_name)
-    sent_snaps = __parse_snap_history_table(tables[SENT_SNAPS_TABLE_INDEX], __SnapDirection.SENT, my_name)
+    received_snaps = __parse_snap_history_table(
+        tables[RECEIVED_SNAPS_TABLE_INDEX], __SnapDirection.RECEIVED, my_name)
+    sent_snaps = __parse_snap_history_table(
+        tables[SENT_SNAPS_TABLE_INDEX], __SnapDirection.SENT, my_name)
 
     return received_snaps, sent_snaps

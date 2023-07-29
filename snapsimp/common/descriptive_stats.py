@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+
 class DescriptiveStats:
     def __init__(self, minimum, average, maximum):
         self.minimum = minimum
@@ -12,9 +13,11 @@ class DescriptiveStats:
     def __str__(self):
         return f"Min: {self.minimum}, Avg: {self.average}, Max: {self.maximum}"
 
+
 class DescriptiveStatsFloat(DescriptiveStats):
     def __init__(self, minimum: float, average: float, maximum: float):
         super().__init__(minimum, average, maximum)
+
 
 class DescriptiveStatsTimedelta(DescriptiveStats):
     def __init__(self, minimum: timedelta, average: timedelta, maximum: timedelta):

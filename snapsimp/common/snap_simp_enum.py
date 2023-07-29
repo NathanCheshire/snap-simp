@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class SnapSimpEnum(Enum):
     @classmethod
     def values(cls):

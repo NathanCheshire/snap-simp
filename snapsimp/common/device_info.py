@@ -1,5 +1,6 @@
 from typing import List
 
+
 class DeviceInformation:
     """
     A device information object holds device info data from a standard account.html file.
@@ -16,7 +17,7 @@ class DeviceInformation:
     - connection_type: the type of connections the current device is using such as "WIFI" and "CELL"
     """
 
-    def __init__(self, make: str, model_id: str, model_name: str, user_agent: str, 
+    def __init__(self, make: str, model_id: str, model_name: str, user_agent: str,
                  language: str, os_type: str, os_version: str, connection_type: List[str]):
         self.make = make
         self.model_id = model_id

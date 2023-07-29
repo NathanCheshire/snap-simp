@@ -1,10 +1,11 @@
 from enum import Enum
 
+
 class HtmlHeaders(Enum):
     """
     The six HTML supported header tags.
     """
-    
+
     H1 = 'h1'
     H2 = 'h2'
     H3 = 'h3'

@@ -20,7 +20,8 @@ class BasicUserInfo:
     def __init__(self, username: str, name: str, creation_date: str):
         self.username = username
         self.name = name
-        self.creation_date = datetime.strptime(creation_date, '%Y-%m-%d %H:%M:%S %Z')
+        self.creation_date = datetime.strptime(
+            creation_date, '%Y-%m-%d %H:%M:%S %Z')
 
     def __str__(self):
         return f"BasicUserInfo(username='{self.username}', name='{self.name}', creation_date='{self.creation_date}')"

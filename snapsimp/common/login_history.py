@@ -1,6 +1,7 @@
 from datetime import datetime
 import ipaddress
 
+
 class LoginHistory:
     """
     A login history object holds login history data from a standard account.html file.

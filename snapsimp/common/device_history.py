@@ -1,6 +1,7 @@
 from typing import Optional
 from datetime import datetime
 
+
 class DeviceHistory:
     """
     A device history object holds device history data from a standard account.html file.
@@ -23,4 +24,3 @@ class DeviceHistory:
 
     def __repr__(self):
         return self.__str__()
-

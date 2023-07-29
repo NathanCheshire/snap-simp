@@ -7,6 +7,7 @@ from collections import Counter
 from snaps.snap import Snap
 from common.descriptive_stats import DescriptiveStatsTimedelta
 
+
 class SnapchatSnapConversation:
     """
     A snapchat snap conversation stores a list of snaps between two users for a designated period of time.
@@ -15,7 +16,7 @@ class SnapchatSnapConversation:
     def __init__(self, snaps: List[Snap]):
         """
         Initialize a SnapchatSnapConversation instance.
-        
+
         :param snaps: the list of Snap objects for this conversation
         It is expected that this list contains snaps between two and only two users
         """
@@ -30,14 +31,16 @@ class SnapchatSnapConversation:
     def __check_initialization_constraints(self, sending_users: Set[str], receiving_users: Set[str]) -> None:
         """
         Checks if the provided users are valid for the conversation. The conversation must be between two users.
-        
+
         :param sending_users: the set of users who sent snaps
         :param receiving_users: the set of users who received snaps
         """
         if len(sending_users) != 2 or len(receiving_users) != 2:
-            raise AssertionError("All sent and received snaps must be from the same two users.")
+            raise AssertionError(
+                "All sent and received snaps must be from the same two users.")
         if sending_users != receiving_users:
-            raise AssertionError("Sending users and receiving users must be the same.")
+            raise AssertionError(
+                "Sending users and receiving users must be the same.")
 
     def get_earlist_snap_date(self) -> datetime:
         """
@@ -96,7 +99,7 @@ class SnapchatSnapConversation:
         """
         receiver_counts = Counter([snap.receiver for snap in self.snaps])
         return receiver_counts.most_common(1)[0][0]
-    
+
     def get_conversation_duration(self) -> timedelta:
         """
         Returns the duration of the conversation.
@@ -148,10 +151,11 @@ class SnapchatSnapConversation:
         :return: the snaps sent by the provided user
         """
         if username not in self.users:
-            raise AssertionError(f"\"{username}\" is not a part of this conversation.")
+            raise AssertionError(
+                f"\"{username}\" is not a part of this conversation.")
 
         return [snap for snap in self.snaps if snap.sender == username]
-    
+
     def get_received_snaps_by_user(self, username: str) -> List[Snap]:
         """
         Returns the snaps received by the provided user within this conversation.
@@ -159,7 +163,8 @@ class SnapchatSnapConversation:
         :return: the snaps received by the provided user
         """
         if username not in self.users:
-            raise AssertionError(f"\"{username}\" is not a part of this conversation.")
+            raise AssertionError(
+                f"\"{username}\" is not a part of this conversation.")
 
         return [snap for snap in self.snaps if snap.receiver == username]
 
@@ -171,7 +176,7 @@ class SnapchatSnapConversation:
         """
         sent_snaps_by_user = self.get_sent_snaps_by_user(username)
         return len(sent_snaps_by_user) if sent_snaps_by_user else 0
-    
+
     def get_num_snaps_sent_by_user(self, username: str) -> int:
         """
         Returns the number of snaps received by the provided user within this conversation.
@@ -180,11 +185,11 @@ class SnapchatSnapConversation:
         """
         received_snaps_by_user = self.get_received_snaps_by_user(username)
         return len(received_snaps_by_user) if received_snaps_by_user else 0
-    
+
     def __get_switching_snaps(self) -> List[Snap]:
         switching_snaps = []
 
-        for i in range(len(self.snaps) - 1): 
+        for i in range(len(self.snaps) - 1):
             current_snap = self.snaps[i]
             next_snap = self.snaps[i + 1]
 
@@ -194,7 +199,7 @@ class SnapchatSnapConversation:
         switching_snaps.append(self.snaps[-1])
 
         return switching_snaps
-    
+
     def calculate_descriptive_response_stats_of_receiver(self, receiver: str) -> DescriptiveStatsTimedelta:
         """
         Computes and returns the descriptive stats for the provided receiver. Namely, the minimum, average, and maximum
@@ -204,23 +209,27 @@ class SnapchatSnapConversation:
         """
 
         if receiver not in self.users:
-            raise AssertionError(f"{receiver} should be in list of users: {self.users}")
+            raise AssertionError(
+                f"{receiver} should be in list of users: {self.users}")
 
         latest_snaps_before_sender_switch = self.__get_switching_snaps()
 
         # Extract the timestamps of snaps sent by the receiver
-        receiver_snap_times = [snap.timestamp for snap in latest_snaps_before_sender_switch if snap.sender == receiver]
+        receiver_snap_times = [
+            snap.timestamp for snap in latest_snaps_before_sender_switch if snap.sender == receiver]
         # Pair each snap time with the next one (if it exists)
-        paired_snap_times = list(zip(receiver_snap_times, receiver_snap_times[1:]))
+        paired_snap_times = list(
+            zip(receiver_snap_times, receiver_snap_times[1:]))
         # Compute the time differences
         awaiting_response_times = [(t2 - t1) for t1, t2 in paired_snap_times]
 
         min_diff = min(awaiting_response_times)
         max_diff = max(awaiting_response_times)
-        avg_diff = timedelta(seconds=mean([diff.total_seconds() for diff in awaiting_response_times]))
+        avg_diff = timedelta(seconds=mean(
+            [diff.total_seconds() for diff in awaiting_response_times]))
 
         return DescriptiveStatsTimedelta(min_diff, avg_diff, max_diff)
-    
+
     def __str__(self):
         return f"SnapchatSnapConversation(users={self.users}, num_snaps={len(self.snaps)}, earliest_snap_date={self.get_earlist_snap_date()}, latest_snap_date={self.get_latest_snap_date()})"
 
