@@ -4,20 +4,15 @@ from common.basic_user_info import BasicUserInfo
 from common.device_info import DeviceInformation
 from common.device_history import DeviceHistory
 from common.login_history import LoginHistory
-from common.device_type import DeviceType
 from soup.indicies.account_table_indicie import AccountTableIndicie
 from soup.indicies.device_information_row_indicie import DeviceInformationRowIndicie
 from soup.indicies.basic_user_info_row_indicie import BasicUserInfoRowIndicie
-from soup.login_history_label import LoginHistoryLabel
-from soup.device_history_label import DeviceHistoryLabel
+from common.login_history_label import LoginHistoryLabel
+from common.device_history_label import DeviceHistoryLabel
 from soup.account_table import AccountTable
 from soup.html_headers import HtmlHeaders
 from soup.table_elements import TableElements
 from bs4 import BeautifulSoup
-
-
-DEVICE_HISTORY_LABELS = list(DeviceHistoryLabel.__members__.values())
-LOGIN_HISTORY_LABELS = list(LoginHistoryLabel.__members__.values())
 
 
 def __get_soup_and_check_headers(filename: str) -> BeautifulSoup:
@@ -118,17 +113,15 @@ def __parse_device_history_row(row) -> DeviceHistory:
 
     soup = BeautifulSoup(str(row), 'html.parser')
 
-    for label in DEVICE_HISTORY_LABELS:
+    for label in DeviceHistoryLabel.values():
         tag = soup.find('b', text=re.compile(f'^{label.value}'))
         if tag:
             value = tag.next_sibling
             if value:
                 if label == DeviceHistoryLabel.DEVICE_TYPE:
-                    device_type = value.strip().lower()
-                    if device_type in DeviceType.__members__:
-                        device_info[DeviceHistoryLabel.DEVICE_TYPE.value] = device_type
+                    device_info[label.value] = value.strip().lower()
                 else:
-                    device_info[DeviceHistoryLabel.DEVICE_TYPE.value] = value.strip()
+                    device_info[label.value] = value.strip()
 
     return DeviceHistory(
         make=device_info.get(DeviceHistoryLabel.MAKE.value, None),
@@ -165,7 +158,7 @@ def __parse_login_history_row(row) -> LoginHistory:
 
     soup = BeautifulSoup(str(row), 'html.parser')
 
-    for label in LOGIN_HISTORY_LABELS:
+    for label in LoginHistoryLabel.values():
         tag = soup.find('b', text=re.compile(f'^{label.value}'))
         if tag:
             value = tag.next_sibling

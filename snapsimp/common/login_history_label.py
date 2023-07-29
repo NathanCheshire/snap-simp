@@ -1,10 +1,9 @@
-from enum import Enum
+from common.snap_simp_enum import SnapSimpEnum
 
 
-class LoginHistoryLabel(Enum):
-    IP = "IP: "
-    COUNTRY = "Country: "
-    CREATED = "Created: "
-    STATUS = "Status: "
-    DEVICE = "Device: "
-    
+class LoginHistoryLabel(SnapSimpEnum):
+    IP = "IP:"
+    COUNTRY = "Country:"
+    CREATED = "Created:"
+    STATUS = "Status:"
+    DEVICE = "Device:"
