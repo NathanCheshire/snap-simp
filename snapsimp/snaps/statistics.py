@@ -37,9 +37,11 @@ def compute_snap_count(snaps: List[Snap]) -> Tuple[Dict[str, int], Dict[str, int
     receiver_username_count = Counter(snap.receiver for snap in snaps)
 
     sorted_sender_username_counts = sorted(
-        sender_username_count.items(), key=lambda item: item[1], reverse=True)
+        sender_username_count.items(), key=lambda item: item[1], reverse=True
+    )
     sorted_receiver_username_counts = sorted(
-        receiver_username_count.items(), key=lambda item: item[1], reverse=True)
+        receiver_username_count.items(), key=lambda item: item[1], reverse=True
+    )
 
     sorted_sender_username_dict = dict(sorted_sender_username_counts)
     sorted_receiver_username_dict = dict(sorted_receiver_username_counts)
@@ -74,12 +76,13 @@ def get_image_to_video_ratio_by_sending_user(snaps: List[Snap], username: str) -
     """
 
     snaps_by_username = filtering.get_snaps_by_sending_user(snaps, username)
-    image_snaps, video_snaps = filtering.filter_snaps_by_type(
-        snaps_by_username)
+    image_snaps, video_snaps = filtering.filter_snaps_by_type(snaps_by_username)
     return len(image_snaps) / len(video_snaps)
 
 
-def get_image_to_video_ratio_by_receiving_user(snaps: List[Snap], username: str) -> float:
+def get_image_to_video_ratio_by_receiving_user(
+    snaps: List[Snap], username: str
+) -> float:
     """
     Returns the image to video snap ratio of the provided receiving user.
 
@@ -88,8 +91,7 @@ def get_image_to_video_ratio_by_receiving_user(snaps: List[Snap], username: str)
     """
 
     snaps_by_username = filtering.get_snaps_by_receiving_user(snaps, username)
-    image_snaps, video_snaps = filtering.filter_snaps_by_type(
-        snaps_by_username)
+    image_snaps, video_snaps = filtering.filter_snaps_by_type(snaps_by_username)
     return len(image_snaps) / len(video_snaps)
 
 
@@ -101,7 +103,9 @@ def get_image_to_video_ratio_by_top_sender(snaps: List[Snap]) -> float:
     :return: the image to video snap ratio of top sender of snaps from within the provided list
     """
 
-    return get_image_to_video_ratio_by_sending_user(snaps, filtering.get_top_sender_username(snaps))
+    return get_image_to_video_ratio_by_sending_user(
+        snaps, filtering.get_top_sender_username(snaps)
+    )
 
 
 def get_image_to_video_ratio_by_top_receiver(snaps: List[Snap]) -> float:
@@ -112,7 +116,9 @@ def get_image_to_video_ratio_by_top_receiver(snaps: List[Snap]) -> float:
     :return: the image to video snap ratio of top recipient of snaps from within the provided list
     """
 
-    return get_image_to_video_ratio_by_receiving_user(snaps, filtering.get_top_receiver_username(snaps))
+    return get_image_to_video_ratio_by_receiving_user(
+        snaps, filtering.get_top_receiver_username(snaps)
+    )
 
 
 def get_number_of_snaps_by_sender(snaps: List[Snap], username: str):
@@ -168,8 +174,7 @@ def get_date_range(snaps: List[Snap]) -> DateRange:
 
     time_ordered = time_ordered = order_by_time_in_ascending_order(snaps)
     if len(time_ordered) < 2:
-        raise AssertionError(
-            "Cannot construct a date range from less than 2 snaps")
+        raise AssertionError("Cannot construct a date range from less than 2 snaps")
     return DateRange(time_ordered[0].timestamp, time_ordered[-1].timestamp)
 
 
@@ -203,7 +208,8 @@ def get_days_top_sender_did_not_send(snaps: List[Snap]) -> List[datetime]:
 
     all_days_sorted = generate_ordered_date_range(min_date, max_date)
     days_top_sender_did_not_send = list(
-        set(all_days_sorted) - set(days_top_sender_sent))
+        set(all_days_sorted) - set(days_top_sender_sent)
+    )
     days_top_sender_did_not_send_sorted = sorted(days_top_sender_did_not_send)
 
     return days_top_sender_did_not_send_sorted
@@ -217,9 +223,9 @@ def get_days_top_receiver_did_not_receive(snaps: List[Snap]) -> List[datetime]:
 
     all_days_sorted = generate_ordered_date_range(min_date, max_date)
     days_top_receiver_did_not_receive = list(
-        set(all_days_sorted) - set(days_top_receiver_received))
-    days_top_receiver_did_not_receive_sorted = sorted(
-        days_top_receiver_did_not_receive)
+        set(all_days_sorted) - set(days_top_receiver_received)
+    )
+    days_top_receiver_did_not_receive_sorted = sorted(days_top_receiver_did_not_receive)
 
     return days_top_receiver_did_not_receive_sorted
 
@@ -232,6 +238,5 @@ def get_days_top_sender_sent(snaps: List[Snap]) -> List[datetime]:
 
 def get_days_top_receiver_received(snaps: List[Snap]) -> List[datetime]:
     top_receiver_snaps = filtering.get_snaps_by_top_receiver(snaps)
-    days_top_receiver_received = {snap.timestamp.date()
-                                  for snap in top_receiver_snaps}
+    days_top_receiver_received = {snap.timestamp.date() for snap in top_receiver_snaps}
     return sorted(list(days_top_receiver_received))

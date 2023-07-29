@@ -8,7 +8,7 @@ class Snap:
         self.sender = sender
         self.receiver = receiver
         self.type = SnapType(type)
-        self.timestamp = datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S %Z')
+        self.timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S %Z")
 
     @property
     def sender(self):

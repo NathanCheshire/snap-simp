@@ -22,19 +22,21 @@ def __get_soup_and_check_headers(filename: str) -> BeautifulSoup:
     :param filename: the path to the account.html file
     :return: a beautiful soup object
     """
-    with open(filename, 'r') as f:
-        soup = BeautifulSoup(f.read(), 'html.parser')
+    with open(filename, "r") as f:
+        soup = BeautifulSoup(f.read(), "html.parser")
 
     headers = soup.find_all(HtmlHeaders.H3.value)
 
     if len(headers) != len(AccountTable):
         raise ValueError(
-            f"Unexpected number of {HtmlHeaders.H3.value} headers. Expected {len(AccountTable)}, found {len(headers)}")
+            f"Unexpected number of {HtmlHeaders.H3.value} headers. Expected {len(AccountTable)}, found {len(headers)}"
+        )
 
     for i, info_table in enumerate(AccountTable):
-        if headers[i].text.lower() != info_table.name.replace('_', ' ').lower():
+        if headers[i].text.lower() != info_table.name.replace("_", " ").lower():
             raise ValueError(
-                f"Unexpected {HtmlHeaders.H3.value} header at position {i}. Expected '{info_table.name.replace('_', ' ')}', found '{headers[i].text}'")
+                f"Unexpected {HtmlHeaders.H3.value} header at position {i}. Expected '{info_table.name.replace('_', ' ')}', found '{headers[i].text}'"
+            )
 
     return soup
 
@@ -46,8 +48,7 @@ def parse_basic_user_info(filename: str) -> BasicUserInfo:
     :param filename: the path to the html file containing the account data
     :return: a BasicUserInfo object
     """
-    tables = __get_soup_and_check_headers(
-        filename).find_all(TableElements.TABLE.value)
+    tables = __get_soup_and_check_headers(filename).find_all(TableElements.TABLE.value)
     basic_user_info_table = tables[AccountTableIndicie.BASIC_USER_INFO.value]
     rows = basic_user_info_table.find_all(TableElements.TABLE_ROW.value)
 
@@ -55,12 +56,15 @@ def parse_basic_user_info(filename: str) -> BasicUserInfo:
     name_row = rows[BasicUserInfoRowIndicie.NAME_ROW.value]
     creation_date_row = rows[BasicUserInfoRowIndicie.CREATION_DATE_ROW.value]
 
-    username = username_row.find_all(TableElements.TABLE_HEADER.value)[
-        1].get_text().strip()
-    name = name_row.find_all(TableElements.TABLE_HEADER.value)[
-        1].get_text().strip()
-    creation_date = creation_date_row.find_all(TableElements.TABLE_HEADER.value)[
-        1].get_text().strip()
+    username = (
+        username_row.find_all(TableElements.TABLE_HEADER.value)[1].get_text().strip()
+    )
+    name = name_row.find_all(TableElements.TABLE_HEADER.value)[1].get_text().strip()
+    creation_date = (
+        creation_date_row.find_all(TableElements.TABLE_HEADER.value)[1]
+        .get_text()
+        .strip()
+    )
 
     return BasicUserInfo(username, name, creation_date)
 
@@ -72,8 +76,7 @@ def parse_device_information(filename: str) -> DeviceInformation:
     :param filename: the path to the html file containing the device information data
     :return: a DeviceInformation object
     """
-    tables = __get_soup_and_check_headers(
-        filename).find_all(TableElements.TABLE.value)
+    tables = __get_soup_and_check_headers(filename).find_all(TableElements.TABLE.value)
     device_information_table = tables[AccountTableIndicie.DEVICE_INFO.value]
     rows = device_information_table.find_all(TableElements.TABLE_ROW.value)
 
@@ -88,18 +91,28 @@ def parse_device_information(filename: str) -> DeviceInformation:
 
     make = make_row.find_all(TableElements.TABLE_HEADER.value)[1].text
     model_id = model_row.find_all(TableElements.TABLE_HEADER.value)[1].text
-    model_name = model_name_row.find_all(
-        TableElements.TABLE_HEADER.value)[1].text
-    user_agent = user_agent_row.find_all(
-        TableElements.TABLE_HEADER.value)[1].text
+    model_name = model_name_row.find_all(TableElements.TABLE_HEADER.value)[1].text
+    user_agent = user_agent_row.find_all(TableElements.TABLE_HEADER.value)[1].text
     language = language_row.find_all(TableElements.TABLE_HEADER.value)[1].text
     os_type = os_type_row.find_all(TableElements.TABLE_HEADER.value)[1].text
-    os_version = os_version_row.find_all(
-        TableElements.TABLE_HEADER.value)[1].text
-    connection_type = [type.strip() for type in connection_type_row.find_all(
-        TableElements.TABLE_HEADER.value)[1].text.split(',')]
+    os_version = os_version_row.find_all(TableElements.TABLE_HEADER.value)[1].text
+    connection_type = [
+        type.strip()
+        for type in connection_type_row.find_all(TableElements.TABLE_HEADER.value)[
+            1
+        ].text.split(",")
+    ]
 
-    return DeviceInformation(make, model_id, model_name, user_agent, language, os_type, os_version, connection_type)
+    return DeviceInformation(
+        make,
+        model_id,
+        model_name,
+        user_agent,
+        language,
+        os_type,
+        os_version,
+        connection_type,
+    )
 
 
 def __parse_device_history_row(row) -> DeviceHistory:
@@ -111,10 +124,10 @@ def __parse_device_history_row(row) -> DeviceHistory:
     """
     device_info = {}
 
-    soup = BeautifulSoup(str(row), 'html.parser')
+    soup = BeautifulSoup(str(row), "html.parser")
 
     for label in DeviceHistoryLabel.values():
-        tag = soup.find('b', text=re.compile(f'^{label.value}'))
+        tag = soup.find("b", text=re.compile(f"^{label.value}"))
         if tag:
             value = tag.next_sibling
             if value:
@@ -127,7 +140,7 @@ def __parse_device_history_row(row) -> DeviceHistory:
         make=device_info.get(DeviceHistoryLabel.MAKE.value, None),
         model=device_info.get(DeviceHistoryLabel.MODEL.value, None),
         start_time=device_info.get(DeviceHistoryLabel.START_TIME.value, None),
-        device_type=device_info.get(DeviceHistoryLabel.DEVICE_TYPE.value, None)
+        device_type=device_info.get(DeviceHistoryLabel.DEVICE_TYPE.value, None),
     )
 
 
@@ -138,8 +151,7 @@ def parse_device_history(filename: str) -> List[DeviceHistory]:
     :param filename: the path to the html file containing the device history data
     :return: a DeviceHistory object
     """
-    tables = __get_soup_and_check_headers(
-        filename).find_all(TableElements.TABLE.value)
+    tables = __get_soup_and_check_headers(filename).find_all(TableElements.TABLE.value)
     device_history_table = tables[AccountTableIndicie.DEVICE_HISTORY.value]
     rows = device_history_table.find_all(TableElements.TABLE_ROW.value)
 
@@ -156,10 +168,10 @@ def __parse_login_history_row(row) -> LoginHistory:
     """
     login_info = {}
 
-    soup = BeautifulSoup(str(row), 'html.parser')
+    soup = BeautifulSoup(str(row), "html.parser")
 
     for label in LoginHistoryLabel.values():
-        tag = soup.find('b', text=re.compile(f'^{label.value}'))
+        tag = soup.find("b", text=re.compile(f"^{label.value}"))
         if tag:
             value = tag.next_sibling
             if value:
@@ -170,7 +182,7 @@ def __parse_login_history_row(row) -> LoginHistory:
         country=login_info.get(LoginHistoryLabel.COUNTRY.value, None),
         created=login_info.get(LoginHistoryLabel.CREATED.value, None),
         status=login_info.get(LoginHistoryLabel.STATUS.value, None),
-        device=login_info.get(LoginHistoryLabel.DEVICE.value, None)
+        device=login_info.get(LoginHistoryLabel.DEVICE.value, None),
     )
 
 
@@ -181,8 +193,7 @@ def parse_login_history(filename: str) -> List[LoginHistory]:
     :param filename: the path to the html file containing the login history data
     :return: a LoginHistory object
     """
-    tables = __get_soup_and_check_headers(
-        filename).find_all(TableElements.TABLE.value)
+    tables = __get_soup_and_check_headers(filename).find_all(TableElements.TABLE.value)
     device_history_table = tables[AccountTableIndicie.LOGIN_HISTORY.value]
     rows = device_history_table.find_all(TableElements.TABLE_ROW.value)
 
@@ -190,7 +201,9 @@ def parse_login_history(filename: str) -> List[LoginHistory]:
     return login_histories
 
 
-def parse_all(filename: str) -> Tuple[BasicUserInfo, DeviceInformation, List[DeviceHistory], List[LoginHistory]]:
+def parse_all(
+    filename: str,
+) -> Tuple[BasicUserInfo, DeviceInformation, List[DeviceHistory], List[LoginHistory]]:
     """
     Parses and returns all data tables from the provided account.html file.
 

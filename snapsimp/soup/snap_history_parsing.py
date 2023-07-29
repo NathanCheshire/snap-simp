@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import List, Tuple
 from bs4 import BeautifulSoup
 from snaps.snap import Snap
@@ -17,7 +16,9 @@ class __SnapDirection(SnapSimpEnum):
         self.name_str = self.name
 
 
-def __parse_snap_history_table(table: BeautifulSoup, snap_direction: __SnapDirection, my_name: str) -> List[Snap]:
+def __parse_snap_history_table(
+    table: BeautifulSoup, snap_direction: __SnapDirection, my_name: str
+) -> List[Snap]:
     """
     Parses a nspa history table using the provided table. All snaps are tagged with the provided direction.
 
@@ -28,6 +29,7 @@ def __parse_snap_history_table(table: BeautifulSoup, snap_direction: __SnapDirec
     """
 
     snaps = []
+
     if not table:
         return snaps
 
@@ -39,16 +41,19 @@ def __parse_snap_history_table(table: BeautifulSoup, snap_direction: __SnapDirec
         if len(columns) != len(SnapHistoryTableColumnIndicie.values()):
             continue
 
-        other_account_username = columns[SnapHistoryTableColumnIndicie.SENDER.value].get_text(
+        other_account_username = columns[
+            SnapHistoryTableColumnIndicie.SENDER.value
+        ].get_text()
+        snap_type = (
+            SnapType.IMAGE
+            if columns[SnapHistoryTableColumnIndicie.TYPE.value].get_text()
+            == SnapType.IMAGE.value
+            else SnapType.VIDEO
         )
-        snap_type = SnapType.IMAGE if columns[SnapHistoryTableColumnIndicie.TYPE.value].get_text(
-        ) == SnapType.IMAGE.value else SnapType.VIDEO
-        timestamp = columns[SnapHistoryTableColumnIndicie.TIME_STAMP.value].get_text(
-        )
+        timestamp = columns[SnapHistoryTableColumnIndicie.TIME_STAMP.value].get_text()
 
         sender = __get_sender(snap_direction, my_name, other_account_username)
-        receiver = __get_receiver(
-            snap_direction, my_name, other_account_username)
+        receiver = __get_receiver(snap_direction, my_name, other_account_username)
 
         snaps.append(Snap(sender, receiver, snap_type, timestamp))
 
@@ -66,7 +71,9 @@ def __get_sender(snap_direction: __SnapDirection, my_name: str, other_name: str)
     return other_name if snap_direction == __SnapDirection.RECEIVED else my_name
 
 
-def __get_receiver(snap_direction: __SnapDirection, my_name: str, other_name: str) -> str:
+def __get_receiver(
+    snap_direction: __SnapDirection, my_name: str, other_name: str
+) -> str:
     """
     Returns the person who received a snap based on the direction.
 
@@ -77,7 +84,9 @@ def __get_receiver(snap_direction: __SnapDirection, my_name: str, other_name: st
     return my_name if snap_direction == __SnapDirection.RECEIVED else other_name
 
 
-def extract_snap_history(snap_history_file_name: str, my_name: str) -> Tuple[List[Snap], List[Snap]]:
+def extract_snap_history(
+    snap_history_file_name: str, my_name: str
+) -> Tuple[List[Snap], List[Snap]]:
     """
     Extracts the snap history, both sent and received snaps, from the provided snap history html file.
     This file is expected to have two and only two tables, the first should be the received snaps table
@@ -88,18 +97,21 @@ def extract_snap_history(snap_history_file_name: str, my_name: str) -> Tuple[Lis
     :returns: two lists of snap objects, the first is the received snaps, the second is the sent snaps
     """
 
-    with open(snap_history_file_name, 'r') as file:
-        soup = BeautifulSoup(file.read(), 'html.parser')
+    with open(snap_history_file_name, "r") as file:
+        soup = BeautifulSoup(file.read(), "html.parser")
 
     tables = soup.find_all(TableElements.TABLE.value)
 
     if len(tables) != len(__SnapDirection.values()):
         raise AssertionError(
-            f"Error: A table amount not equal to {len(__SnapDirection.values())} tables found in {snap_history_file_name}; num tables: {len(tables)}")
+            f"Error: A table amount not equal to {len(__SnapDirection.values())} tables found in {snap_history_file_name}; num tables: {len(tables)}"
+        )
 
     received_snaps = __parse_snap_history_table(
-        tables[__SnapDirection.RECEIVED.table_index], __SnapDirection.RECEIVED, my_name)
+        tables[__SnapDirection.RECEIVED.table_index], __SnapDirection.RECEIVED, my_name
+    )
     sent_snaps = __parse_snap_history_table(
-        tables[__SnapDirection.SENT.table_index], __SnapDirection.SENT, my_name)
+        tables[__SnapDirection.SENT.table_index], __SnapDirection.SENT, my_name
+    )
 
     return received_snaps, sent_snaps

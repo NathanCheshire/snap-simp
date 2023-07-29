@@ -19,7 +19,9 @@ def _daterange(start_date: datetime.date, end_date: datetime.date) -> datetime.d
         current_date += timedelta(days=1)
 
 
-def generate_ordered_date_range(min_date: datetime.date, max_date: datetime.date, ascending=True) -> List[datetime.date]:
+def generate_ordered_date_range(
+    min_date: datetime.date, max_date: datetime.date, ascending=True
+) -> List[datetime.date]:
     """
     Generates an ordered list of dates between a given start and end date.
 

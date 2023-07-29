@@ -14,7 +14,9 @@ class LoginHistory:
     - device: the device the login was performed on
     """
 
-    def __init__(self, ip: str, country: str, created: datetime, status: str, device: str):
+    def __init__(
+        self, ip: str, country: str, created: datetime, status: str, device: str
+    ):
         self.ip = ipaddress.ip_address(ip)
         self.country = country
         self.created = created
