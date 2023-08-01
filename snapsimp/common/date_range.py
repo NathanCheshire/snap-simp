@@ -2,6 +2,10 @@ from datetime import datetime, timedelta
 
 
 class DateRange:
+    """
+    A date range represents a range between two dates.
+    """
+
     def __init__(self, start_date: datetime, end_date: datetime):
         assert (
             start_date <= end_date

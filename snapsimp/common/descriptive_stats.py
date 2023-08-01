@@ -2,6 +2,10 @@ from datetime import timedelta
 
 
 class DescriptiveStats:
+    """
+    A descriptive stats object represents the minimum, average, and maximum measurements of something.
+    """
+
     def __init__(self, minimum, average, maximum):
         self.minimum = minimum
         self.average = average

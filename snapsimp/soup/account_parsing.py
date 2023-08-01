@@ -9,7 +9,6 @@ from soup.indicies.device_information_row_indicie import DeviceInformationRowInd
 from soup.indicies.basic_user_info_row_indicie import BasicUserInfoRowIndicie
 from common.login_history_label import LoginHistoryLabel
 from common.device_history_label import DeviceHistoryLabel
-from soup.account_table import AccountTable
 from soup.html_headers import HtmlHeaders
 from soup.table_elements import TableElements
 from bs4 import BeautifulSoup
@@ -27,12 +26,12 @@ def __get_soup_and_check_headers(filename: str) -> BeautifulSoup:
 
     headers = soup.find_all(HtmlHeaders.H3.value)
 
-    if len(headers) != len(AccountTable):
+    if len(headers) != len(AccountTableIndicie):
         raise ValueError(
-            f"Unexpected number of {HtmlHeaders.H3.value} headers. Expected {len(AccountTable)}, found {len(headers)}"
+            f"Unexpected number of {HtmlHeaders.H3.value} headers. Expected {len(AccountTableIndicie)}, found {len(headers)}"
         )
 
-    for i, info_table in enumerate(AccountTable):
+    for i, info_table in enumerate(AccountTableIndicie):
         if headers[i].text.lower() != info_table.name.replace("_", " ").lower():
             raise ValueError(
                 f"Unexpected {HtmlHeaders.H3.value} header at position {i}. Expected '{info_table.name.replace('_', ' ')}', found '{headers[i].text}'"
@@ -49,7 +48,7 @@ def parse_basic_user_info(filename: str) -> BasicUserInfo:
     :return: a BasicUserInfo object
     """
     tables = __get_soup_and_check_headers(filename).find_all(TableElements.TABLE.value)
-    basic_user_info_table = tables[AccountTableIndicie.BASIC_USER_INFO.value]
+    basic_user_info_table = tables[AccountTableIndicie.BASIC_INFORMATION.value]
     rows = basic_user_info_table.find_all(TableElements.TABLE_ROW.value)
 
     username_row = rows[BasicUserInfoRowIndicie.USERNAME_ROW.value]
@@ -77,7 +76,7 @@ def parse_device_information(filename: str) -> DeviceInformation:
     :return: a DeviceInformation object
     """
     tables = __get_soup_and_check_headers(filename).find_all(TableElements.TABLE.value)
-    device_information_table = tables[AccountTableIndicie.DEVICE_INFO.value]
+    device_information_table = tables[AccountTableIndicie.DEVICE_INFORMATION.value]
     rows = device_information_table.find_all(TableElements.TABLE_ROW.value)
 
     make_row = rows[DeviceInformationRowIndicie.MAKE_ROW.value]
