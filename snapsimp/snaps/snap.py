@@ -4,7 +4,19 @@ from snaps.snap_type import SnapType
 
 
 class Snap:
+    """
+    A snap represents a singular snap of a specific type sent from a singular sender to a singular receiver.
+    """
+
     def __init__(self, sender, receiver, type, timestamp):
+        """
+        Creates a new Snap object.
+
+        :param sender: the username of the sender of the snap
+        :param receiver: the username of the receiver of the snap
+        :param type: the snap type such as video or image
+        :param timestamp: the time at which the snap was sent by the sender's device
+        """
         self.sender = sender
         self.receiver = receiver
         self.type = SnapType(type)
