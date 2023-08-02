@@ -20,7 +20,7 @@ def __parse_snap_history_table(
     table: BeautifulSoup, snap_direction: __SnapDirection, my_name: str
 ) -> List[Snap]:
     """
-    Parses a nspa history table using the provided table. All snaps are tagged with the provided direction.
+    Parses a snap history table using the provided table. All snaps are tagged with the provided direction.
 
     :param table: the HTML extracted table element
     :param snap_direction: the direction of this snap table such as received or sent
