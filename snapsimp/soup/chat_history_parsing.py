@@ -10,6 +10,8 @@ from soup.table_elements import TableElements
 class __ChatDirection(SnapSimpEnum):
     RECEIVED = 0
     SENT = 1
+    RECEIVED_UNSAVED = 2
+    SENT_UNSAVED = 3
 
     def __init__(self, table_index):
         self.table_index = table_index
