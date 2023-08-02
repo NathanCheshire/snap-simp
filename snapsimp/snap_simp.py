@@ -64,7 +64,4 @@ if __name__ == "__main__":
         args.chat_history_file, basic_user_info.username
     )
 
-    for received_chat in received_chats:
-        print(received_chat)
-
     print("Fireworks when we're together, thunderclouds when we're apart")

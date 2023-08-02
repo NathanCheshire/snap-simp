@@ -37,8 +37,18 @@ def __parse_chat_history_table(
 
     rows = table.find_all(TableElements.TABLE_ROW.value)
 
+    current_chat_content = None
+
     for row in rows:
         columns = row.find_all(TableElements.TABLE_DATA_CELL.value)
+
+        if len(columns) == 1 and columns[0].get('colspan') == "3":
+            current_chat_content = columns[0].get_text()
+            
+            if chats and chats[-1].type == ChatType.TEXT:
+                chats[-1].content = current_chat_content
+
+            continue
 
         if len(columns) != len(ChatHistoryTableColumnIndicie.values()):
             continue
@@ -57,7 +67,13 @@ def __parse_chat_history_table(
         sender = __get_sender(chat_direction, my_name, other_account_username)
         receiver = __get_receiver(chat_direction, my_name, other_account_username)
 
-        chats.append(Chat(sender, receiver, chat_type, timestamp))
+        content = current_chat_content if current_chat_content is not None else ""
+
+        print(content)
+        chat = Chat(sender, receiver, chat_type, content, timestamp)
+        print(chat)
+        chats.append(chat)
+        current_chat_content = None
 
     return chats
 
