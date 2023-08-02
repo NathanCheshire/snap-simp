@@ -36,7 +36,7 @@ def get_top_sender_username(snaps: List[Snap]) -> str:
     :return: the username of the person who sends/receives the most snaps to/from you
     """
 
-    sorted_sender_username_dict, _ = stats.compute_snap_count(snaps)
+    sorted_sender_username_dict, _ = stats.get_count(snaps)
     return next(iter(sorted_sender_username_dict))
 
 
@@ -48,7 +48,7 @@ def get_top_receiver_username(snaps: List[Snap]) -> str:
     :return: the username of the person who sends/receives the most snaps to/from you
     """
 
-    _, sorted_receiver_username_dict = stats.compute_snap_count(snaps)
+    _, sorted_receiver_username_dict = stats.get_count(snaps)
     return next(iter(sorted_receiver_username_dict))
 
 

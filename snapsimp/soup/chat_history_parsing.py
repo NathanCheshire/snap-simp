@@ -47,10 +47,10 @@ def __parse_chat_history_table(
             ChatHistoryTableColumnIndicie.SENDER.value
         ].get_text()
         chat_type = (
-            ChatType.IMAGE
+            ChatType.TEXT
             if columns[ChatHistoryTableColumnIndicie.TYPE.value].get_text()
-            == ChatType.IMAGE.value
-            else ChatType.VIDEO
+            == ChatType.TEXT.value
+            else ChatType.MEDIA
         )
         timestamp = columns[ChatHistoryTableColumnIndicie.TIME_STAMP.value].get_text()
 

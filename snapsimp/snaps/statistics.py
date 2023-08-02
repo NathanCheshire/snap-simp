@@ -8,9 +8,13 @@ import snaps.filtering as filtering
 from common.date_range import DateRange
 from snaps.snap_type import SnapType
 from common.time_helpers import generate_ordered_date_range
+from chats.chat import Chat
+from chats.chat_type import ChatType
 
 
-def compute_snap_count(snaps: List[Snap]) -> Tuple[Dict[str, int], Dict[str, int]]:
+def get_count(
+    snaps_or_chats: List[Snap | Chat],
+) -> Tuple[Dict[str, int], Dict[str, int]]:
     """
     Computes and returns a dictionary detailing the count of each unique sender and receiver.
 
@@ -28,13 +32,13 @@ def compute_snap_count(snaps: List[Snap]) -> Tuple[Dict[str, int], Dict[str, int
         }
     )
 
-    :param snaps: the list of snaps to compute the sender count of
-    :return: a tuple containing two dictionaries, the first details the snap counts
-    of the sender usernames and the second details the snap counts of the receiving usernames
+    :param snaps_or_chats: the list of snaps or chats to compute the sender count of
+    :return: a tuple containing two dictionaries, the first details the snap or chat counts
+    of the sender usernames and the second details the snap or chat counts of the receiving usernames
     """
 
-    sender_username_count = Counter(snap.sender for snap in snaps)
-    receiver_username_count = Counter(snap.receiver for snap in snaps)
+    sender_username_count = Counter(item.sender for item in snaps_or_chats)
+    receiver_username_count = Counter(item.receiver for item in snaps_or_chats)
 
     sorted_sender_username_counts = sorted(
         sender_username_count.items(), key=lambda item: item[1], reverse=True
@@ -49,9 +53,9 @@ def compute_snap_count(snaps: List[Snap]) -> Tuple[Dict[str, int], Dict[str, int
     return sorted_sender_username_dict, sorted_receiver_username_dict
 
 
-def get_snap_type_count(snaps: List[Snap]) -> Dict[SnapType, int]:
+def get_type_count(snaps_or_chats: List[Snap | Chat]) -> Dict[SnapType | ChatType, int]:
     """
-    Count the number of each type of snap in the given list, that of video or image.
+    Count the number of each type of snap or chat in the given list, that of video or image for snaps or text or media for chats.
 
     Example:
     {
@@ -59,11 +63,11 @@ def get_snap_type_count(snaps: List[Snap]) -> Dict[SnapType, int]:
         "VIDEO": 5150
     }
 
-    :param snaps: The list of Snap objects to analyze
-    :return: A dictionary mapping each snap type to its count
+    :param snaps_or_chats: The list of Snap or Chat objects to analyze
+    :return: A dictionary mapping each snap or chat type to its count
     """
 
-    type_counts = Counter([snap.type for snap in snaps])
+    type_counts = Counter([snap.type for snap in snaps_or_chats])
     return type_counts
 
 
@@ -77,6 +81,19 @@ def get_image_to_video_ratio_by_sending_user(snaps: List[Snap], username: str) -
 
     snaps_by_username = filtering.get_snaps_by_sending_user(snaps, username)
     image_snaps, video_snaps = filtering.filter_snaps_by_type(snaps_by_username)
+    return len(image_snaps) / len(video_snaps)
+
+
+def get_text_to_media_ratio_by_sending_user(chats: List[Chat], username: str) -> float:
+    """
+    Returns the text to media chat ratio of the provided sending user.
+
+    :param snaps: the list of chats
+    :param username: the username to return the text to media chat ratio from within the provided chats list
+    """
+
+    chats_by_username = filtering.get_snaps_by_sending_user(chats, username)
+    text_chats, media_chats = filtering.filter_snaps_by_type(chats_by_username)
     return len(image_snaps) / len(video_snaps)
 
 
