@@ -42,9 +42,9 @@ def __parse_chat_history_table(
     for row in rows:
         columns = row.find_all(TableElements.TABLE_DATA_CELL.value)
 
-        if len(columns) == 1 and columns[0].get('colspan') == "3":
+        if len(columns) == 1 and columns[0].get("colspan") == "3":
             current_chat_content = columns[0].get_text()
-            
+
             if chats and chats[-1].type == ChatType.TEXT:
                 chats[-1].content = current_chat_content
 
