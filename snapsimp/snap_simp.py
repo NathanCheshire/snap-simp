@@ -1,5 +1,6 @@
 import argparse
 from snaps.snapchat_snap_conversation import SnapchatSnapConversation
+from chats.snapchat_chat_conversation import SnapchatChatConversation
 from soup.snap_history_parsing import extract_snap_history
 from soup.account_parsing import parse_all
 from soup.chat_history_parsing import extract_chat_history
@@ -44,22 +45,22 @@ if __name__ == "__main__":
     received_snaps, sent_snaps = extract_snap_history(
         args.snap_history_file, basic_user_info.username
     )
+    received_chats, sent_chats = extract_chat_history(
+        args.chat_history_file, basic_user_info.username
+    )
 
     top_sender_to_me_snaps = get_by_top_sender(received_snaps)
     top_receiver_from_me_snaps = get_by_top_receiver(sent_snaps)
+    top_sender_to_me_chats = get_by_top_sender(received_chats)
+    top_receiver_from_me_chats = get_by_top_receiver(sent_chats)
 
     sent_snaps, sent_videos = filter_snaps_by_type(top_receiver_from_me_snaps)
     received_snaps, received_videos = filter_snaps_by_type(top_sender_to_me_snaps)
 
-    days_she_sent = get_days_top_sender_sent(received_snaps)
-    days_she_did_not_send = get_days_top_sender_did_not_send(received_snaps)
-
-    days_i_sent = get_days_top_receiver_received(sent_snaps)
-    days_i_did_not_send = get_days_top_receiver_did_not_receive(sent_snaps)
-
     our_snaps = top_sender_to_me_snaps + top_receiver_from_me_snaps
     our_conversation = SnapchatSnapConversation(our_snaps)
 
-    received_chats, sent_chats = extract_chat_history(
-        args.chat_history_file, basic_user_info.username
-    )
+    our_chats = top_sender_to_me_chats + top_receiver_from_me_chats
+    our_chat_conversation = SnapchatChatConversation(our_chats)
+
+    print(our_chat_conversation)
