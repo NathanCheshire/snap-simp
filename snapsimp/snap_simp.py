@@ -4,8 +4,8 @@ from soup.snap_history_parsing import extract_snap_history
 from soup.account_parsing import parse_all
 from soup.chat_history_parsing import extract_chat_history
 from snaps.filtering import (
-    get_snaps_by_top_receiver,
-    get_snaps_by_top_sender,
+    get_by_top_receiver,
+    get_by_top_sender,
     filter_snaps_by_type,
 )
 from snaps.statistics import (
@@ -45,8 +45,8 @@ if __name__ == "__main__":
         args.snap_history_file, basic_user_info.username
     )
 
-    top_sender_to_me_snaps = get_snaps_by_top_sender(received_snaps)
-    top_receiver_from_me_snaps = get_snaps_by_top_receiver(sent_snaps)
+    top_sender_to_me_snaps = get_by_top_sender(received_snaps)
+    top_receiver_from_me_snaps = get_by_top_receiver(sent_snaps)
 
     sent_snaps, sent_videos = filter_snaps_by_type(top_receiver_from_me_snaps)
     received_snaps, received_videos = filter_snaps_by_type(top_sender_to_me_snaps)
@@ -63,5 +63,3 @@ if __name__ == "__main__":
     received_chats, sent_chats = extract_chat_history(
         args.chat_history_file, basic_user_info.username
     )
-
-    print("Fireworks when we're together, thunderclouds when we're apart")

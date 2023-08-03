@@ -79,7 +79,7 @@ def get_image_to_video_ratio_by_sending_user(snaps: List[Snap], username: str) -
     :param username: the username to return the image to video snap ratio of from within the provided snaps list
     """
 
-    snaps_by_username = filtering.get_snaps_by_sending_user(snaps, username)
+    snaps_by_username = filtering.get_by_sending_user(snaps, username)
     image_snaps, video_snaps = filtering.filter_snaps_by_type(snaps_by_username)
     return len(image_snaps) / len(video_snaps)
 
@@ -92,9 +92,9 @@ def get_text_to_media_ratio_by_sending_user(chats: List[Chat], username: str) ->
     :param username: the username to return the text to media chat ratio from within the provided chats list
     """
 
-    chats_by_username = filtering.get_snaps_by_sending_user(chats, username)
+    chats_by_username = filtering.get_by_sending_user(chats, username)
     text_chats, media_chats = filtering.filter_snaps_by_type(chats_by_username)
-    return len(image_snaps) / len(video_snaps)
+    return len(text_chats) / len(media_chats)
 
 
 def get_image_to_video_ratio_by_receiving_user(
@@ -107,7 +107,7 @@ def get_image_to_video_ratio_by_receiving_user(
     :param username: the username to return the image to video snap ratio of from within the provided snaps list
     """
 
-    snaps_by_username = filtering.get_snaps_by_receiving_user(snaps, username)
+    snaps_by_username = filtering.get_by_receiving_user(snaps, username)
     image_snaps, video_snaps = filtering.filter_snaps_by_type(snaps_by_username)
     return len(image_snaps) / len(video_snaps)
 
@@ -147,7 +147,7 @@ def get_number_of_snaps_by_sender(snaps: List[Snap], username: str):
     :return: the number of snaps the provided user sent
     """
 
-    return len(filtering.get_snaps_by_sending_user(snaps, username))
+    return len(filtering.get_by_sending_user(snaps, username))
 
 
 def get_number_of_snaps_by_receiver(snaps: List[Snap], username: str):
@@ -159,7 +159,7 @@ def get_number_of_snaps_by_receiver(snaps: List[Snap], username: str):
     :return: the number of snaps the provided user received
     """
 
-    return len(filtering.get_snaps_by_receiving_user(snaps, username))
+    return len(filtering.get_by_receiving_user(snaps, username))
 
 
 def order_by_time_in_ascending_order(snaps: List[Snap]) -> List[Snap]:
@@ -202,7 +202,7 @@ def get_duration_of_snap_with_top_sender(snaps: List[Snap]) -> timedelta:
     :param snaps: the list of snaps
     """
 
-    top_sender_snaps = filtering.get_snaps_by_top_sender(snaps)
+    top_sender_snaps = filtering.get_by_top_sender(snaps)
     return get_date_range(top_sender_snaps).duration()
 
 
@@ -213,7 +213,7 @@ def get_duration_of_snap_with_top_receiver(snaps: List[Snap]) -> timedelta:
     :param snaps: the list of snaps
     """
 
-    top_receiver_snaps = filtering.get_snaps_by_top_receiver(snaps)
+    top_receiver_snaps = filtering.get_by_top_receiver(snaps)
     return get_date_range(top_receiver_snaps).duration()
 
 
@@ -248,12 +248,12 @@ def get_days_top_receiver_did_not_receive(snaps: List[Snap]) -> List[datetime]:
 
 
 def get_days_top_sender_sent(snaps: List[Snap]) -> List[datetime]:
-    top_sender_snaps = filtering.get_snaps_by_top_sender(snaps)
+    top_sender_snaps = filtering.get_by_top_sender(snaps)
     days_top_sender_sent = {snap.timestamp.date() for snap in top_sender_snaps}
     return sorted(list(days_top_sender_sent))
 
 
 def get_days_top_receiver_received(snaps: List[Snap]) -> List[datetime]:
-    top_receiver_snaps = filtering.get_snaps_by_top_receiver(snaps)
+    top_receiver_snaps = filtering.get_by_top_receiver(snaps)
     days_top_receiver_received = {snap.timestamp.date() for snap in top_receiver_snaps}
     return sorted(list(days_top_receiver_received))

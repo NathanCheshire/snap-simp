@@ -69,9 +69,7 @@ def __parse_chat_history_table(
 
         content = current_chat_content if current_chat_content is not None else ""
 
-        print(content)
         chat = Chat(sender, receiver, chat_type, content, timestamp)
-        print(chat)
         chats.append(chat)
         current_chat_content = None
 
