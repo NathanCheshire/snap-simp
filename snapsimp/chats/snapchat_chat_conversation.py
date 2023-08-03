@@ -6,6 +6,7 @@ from collections import Counter
 
 from chats.chat import Chat
 from common.descriptive_stats import DescriptiveStatsTimedelta
+from chats.chat_type import ChatType
 
 
 class SnapchatChatConversation:
@@ -233,6 +234,22 @@ class SnapchatChatConversation:
         )
 
         return DescriptiveStatsTimedelta(min_diff, avg_diff, max_diff)
+
+    def print_formatted_conversation(self):
+        last_sender = None
+        for chat in self.chats:
+            if chat.type == ChatType.MEDIA:
+                continue
+            elif len(chat.text.strip()) == 0:
+                continue
+
+            if last_sender == chat.sender:
+                print(chat.timestamp, ": ", chat.text)
+            else:
+                print(chat.sender)
+                print(chat.timestamp, ': "', chat.text, '"')
+            last_sender = chat.sender
+            print()
 
     def __str__(self):
         return f"SnapchatChatConversation(users={self.users}, num_chats={len(self.chats)}, earliest_chat_date={self.get_earlist_chat_date()}, latest_chat_date={self.get_latest_chat_date()})"
