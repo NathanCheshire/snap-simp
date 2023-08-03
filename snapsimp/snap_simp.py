@@ -1,6 +1,7 @@
 import argparse
 from snaps.snapchat_snap_conversation import SnapchatSnapConversation
 from chats.snapchat_chat_conversation import SnapchatChatConversation
+from chats.chat_type import ChatType
 from soup.snap_history_parsing import extract_snap_history
 from soup.account_parsing import parse_all
 from soup.chat_history_parsing import extract_chat_history
@@ -8,12 +9,6 @@ from snaps.filtering import (
     get_by_top_receiver,
     get_by_top_sender,
     filter_snaps_by_type,
-)
-from snaps.statistics import (
-    get_days_top_sender_sent,
-    get_days_top_sender_did_not_send,
-    get_days_top_receiver_did_not_receive,
-    get_days_top_receiver_received,
 )
 
 if __name__ == "__main__":
@@ -63,4 +58,14 @@ if __name__ == "__main__":
     our_chats = top_sender_to_me_chats + top_receiver_from_me_chats
     our_chat_conversation = SnapchatChatConversation(our_chats)
 
-    print(our_chat_conversation)
+    # print conversation
+    # for chat in our_chat_conversation.chats:
+    #     if chat.type == ChatType.MEDIA:
+    #         continue
+    #     elif len(chat.text.strip()) == 0:
+    #         continue
+
+    #     print(chat.timestamp)
+    #     print("------------------------")
+    #     print(chat.sender, ': ',chat.text)
+    #     print()
