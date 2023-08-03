@@ -112,6 +112,20 @@ def get_image_to_video_ratio_by_receiving_user(
     return len(image_snaps) / len(video_snaps)
 
 
+def get_text_to_media_ratio_by_receiving_user(
+    chats: List[Chat], username: str
+) -> float:
+    """
+    Returns the text to media chat ratio of the provided receiving user.
+
+    :param snaps: the list of chats
+    :param username: the username to return the text to media chat ratio of from within the provided chats list
+    """
+    chats_by_username = filtering.get_by_receiving_user(chats, username)
+    text_chats, media_chats = filtering.filter_chats_by_type(chats_by_username)
+    return len(text_chats) / len(media_chats)
+
+
 def get_image_to_video_ratio_by_top_sender(snaps: List[Snap]) -> float:
     """
     Returns the image to video snap ratio of top sender of snaps from within the provided list.
@@ -122,6 +136,19 @@ def get_image_to_video_ratio_by_top_sender(snaps: List[Snap]) -> float:
 
     return get_image_to_video_ratio_by_sending_user(
         snaps, filtering.get_top_sender_username(snaps)
+    )
+
+
+def get_text_to_media_ratio_by_top_sender(chats: List[Chat]) -> float:
+    """
+    Returns the text to media chat ratio of top sender of chats from within the provided list.
+
+    :param chats: the list of chats
+    :return: the text to media chat ratio of top sender of chats from within the provided list
+    """
+
+    return get_text_to_media_ratio_by_sending_user(
+        chats, filtering.get_top_sender_username(chats)
     )
 
 
@@ -138,87 +165,115 @@ def get_image_to_video_ratio_by_top_receiver(snaps: List[Snap]) -> float:
     )
 
 
-def get_number_of_snaps_by_sender(snaps: List[Snap], username: str):
+def get_text_to_media_ratio_by_top_receiver(chats: List[Chat]) -> float:
     """
-    Returns the number of snaps the provided user sent.
+    Returns the text to media chat ratio of top recipient of chats from within the provided list.
 
-    :param snaps: the list of snaps
+    :param chats: the list of chats
+    :return: the text to media chat ratio of top recipient of chats from within the provided list
+    """
+
+    return get_text_to_media_ratio_by_receiving_user(
+        chats, filtering.get_top_receiver_username(chats)
+    )
+
+
+def get_number_by_sender(snaps_or_chats: List[Snap | Chat], username: str):
+    """
+    Returns the number of snaps or chats the provided user sent.
+
+    :param snaps_or_chats: the list of snaps or chats
     :param username: the username to filter on
-    :return: the number of snaps the provided user sent
+    :return: the number of snaps or chats the provided user sent
     """
 
-    return len(filtering.get_by_sending_user(snaps, username))
+    return len(filtering.get_by_sending_user(snaps_or_chats, username))
 
 
-def get_number_of_snaps_by_receiver(snaps: List[Snap], username: str):
+def get_number_by_receiver(snaps_or_chats: List[Snap | Chat], username: str):
     """
-    Returns the number of snaps the provided user received.
+    Returns the number of snaps or chats the provided user received.
 
-    :param snaps: the list of snaps
+    :param snaps_or_chats: the list of snaps or chats
     :param username: the username to filter on
-    :return: the number of snaps the provided user received
+    :return: the number of snaps or chats the provided user received
     """
 
-    return len(filtering.get_by_receiving_user(snaps, username))
+    return len(filtering.get_by_receiving_user(snaps_or_chats, username))
 
 
-def order_by_time_in_ascending_order(snaps: List[Snap]) -> List[Snap]:
+def order_by_time_in_ascending_order(
+    snaps_or_chats: List[Snap | Chat],
+) -> List[Snap | Chat]:
     """
-    Returns the provided snap list after sorting into ascending order by the send time.
+    Returns the provided snap or chat list after sorting into ascending order by the send time.
 
-    :param snaps: the list of snaps to sort into ascending order by send time
-    """
-
-    return sorted(snaps, key=lambda snap: snap.timestamp)
-
-
-def order_by_time_in_descending_order(snaps: List[Snap]) -> List[Snap]:
-    """
-    Returns the provided snap list after sorting into descending order by the send time.
-
-    :param snaps: the list of snaps to sort into descending order by send time
+    :param snaps_or_chats: the list of snaps or chats to sort into ascending order by send time
     """
 
-    return sorted(snaps, key=lambda snap: snap.timestamp, reverse=True)
+    return sorted(snaps_or_chats, key=lambda snap: snap.timestamp)
 
 
-def get_date_range(snaps: List[Snap]) -> DateRange:
+def order_by_time_in_descending_order(
+    snaps_or_chats: List[Snap | Chat],
+) -> List[Snap | Chat]:
     """
-    Returns the date range of the provided list of snaps meaning the range between which all the snaps fall into.
+    Returns the provided snap or chat list after sorting into descending order by the send time.
 
-    :param snaps: the list of snaps
+    :param snaps_or_chats: the list of snaps or chats to sort into descending order by send time
     """
 
-    time_ordered = time_ordered = order_by_time_in_ascending_order(snaps)
+    return sorted(snaps_or_chats, key=lambda snap: snap.timestamp, reverse=True)
+
+
+def get_date_range(snaps_or_chats: List[Snap | Chat]) -> DateRange:
+    """
+    Returns the date range of the provided list of snaps or chats meaning the range between which all the snaps or chats fall into.
+
+    :param snaps_or_chats: the list of snaps or chats
+    :return: the date range of the snaps or chats of the provided list
+    """
+
+    time_ordered = time_ordered = order_by_time_in_ascending_order(snaps_or_chats)
     if len(time_ordered) < 2:
         raise AssertionError("Cannot construct a date range from less than 2 snaps")
     return DateRange(time_ordered[0].timestamp, time_ordered[-1].timestamp)
 
 
-def get_duration_of_snap_with_top_sender(snaps: List[Snap]) -> timedelta:
+def get_duration_with_top_sender(snaps_or_chats: List[Snap | Chat]) -> timedelta:
     """
-    Returns the duration of the snaps sent by the top sender from within the list.
+    Returns the duration of the snaps or chats sent by the top sender from within the list.
 
-    :param snaps: the list of snaps
-    """
-
-    top_sender_snaps = filtering.get_by_top_sender(snaps)
-    return get_date_range(top_sender_snaps).duration()
-
-
-def get_duration_of_snap_with_top_receiver(snaps: List[Snap]) -> timedelta:
-    """
-    Returns the duration of the snaps received by the top receiver from within the list.
-
-    :param snaps: the list of snaps
+    :param snaps: the list of snaps or chats
+    :return: the duration of snaps or chats with the top sender in the provided list
     """
 
-    top_receiver_snaps = filtering.get_by_top_receiver(snaps)
-    return get_date_range(top_receiver_snaps).duration()
+    top_sender = filtering.get_by_top_sender(snaps_or_chats)
+    return get_date_range(top_sender).duration()
 
 
-def get_days_top_sender_did_not_send(snaps: List[Snap]) -> List[datetime]:
-    days_top_sender_sent = get_days_top_sender_sent(snaps)
+def get_duration_with_top_receiver(snaps_or_chats: List[Snap | Chat]) -> timedelta:
+    """
+    Returns the duration of the snaps or chats received by the top receiver from within the list.
+
+    :param snaps_or_chats: the list of snaps or chats
+    :return: the duration of snaps or chats with the top receiver in the provided list
+    """
+
+    top_receiver = filtering.get_by_top_receiver(snaps_or_chats)
+    return get_date_range(top_receiver).duration()
+
+
+def get_days_top_sender_did_not_send(
+    snaps_or_chats: List[Snap | Chat],
+) -> List[datetime]:
+    """
+    Returns the days from the provided list of which the top sender did not send a snap or chat.
+
+    :param snaps_or_chats: the list of snaps or chats
+    :return: the days from the provided list of which the top sender did not send a snap or chat
+    """
+    days_top_sender_sent = get_days_top_sender_sent(snaps_or_chats)
 
     min_date = min(days_top_sender_sent)
     max_date = max(days_top_sender_sent)
@@ -232,8 +287,14 @@ def get_days_top_sender_did_not_send(snaps: List[Snap]) -> List[datetime]:
     return days_top_sender_did_not_send_sorted
 
 
-def get_days_top_receiver_did_not_receive(snaps: List[Snap]) -> List[datetime]:
-    days_top_receiver_received = get_days_top_receiver_received(snaps)
+def get_days_top_receiver_did_not_receive(snaps_or_chats: List[Snap]) -> List[datetime]:
+    """
+    Returns the days from the provided list of which the top receiver did not receive a snap or chat.
+
+    :param snaps_or_chats: the list of snaps or chats
+    :return: the days from the provided list of which the top receiver did not receive a snap or chat
+    """
+    days_top_receiver_received = get_days_top_receiver_received(snaps_or_chats)
 
     min_date = min(days_top_receiver_received)
     max_date = max(days_top_receiver_received)
@@ -247,13 +308,27 @@ def get_days_top_receiver_did_not_receive(snaps: List[Snap]) -> List[datetime]:
     return days_top_receiver_did_not_receive_sorted
 
 
-def get_days_top_sender_sent(snaps: List[Snap]) -> List[datetime]:
-    top_sender_snaps = filtering.get_by_top_sender(snaps)
-    days_top_sender_sent = {snap.timestamp.date() for snap in top_sender_snaps}
+def get_days_top_sender_sent(snaps_or_chats: List[Snap | Chat]) -> List[datetime]:
+    """
+    Returns the days the top sender of the list of snaps or chats sent at least one snap or chat.
+
+    :param snap_or_chats: the list of snaps or chats
+    :return: the days the top sender of the list of snaps or chats sent at least one snap or chat
+    """
+    top_sender_snaps_or_chats = filtering.get_by_top_sender(snaps_or_chats)
+    days_top_sender_sent = {snap.timestamp.date() for snap in top_sender_snaps_or_chats}
     return sorted(list(days_top_sender_sent))
 
 
-def get_days_top_receiver_received(snaps: List[Snap]) -> List[datetime]:
-    top_receiver_snaps = filtering.get_by_top_receiver(snaps)
-    days_top_receiver_received = {snap.timestamp.date() for snap in top_receiver_snaps}
+def get_days_top_receiver_received(snaps_or_chats: List[Snap | Chat]) -> List[datetime]:
+    """
+    Returns the days the top receiver of the list of snaps or chats received at least one snap or chat.
+
+    :param snap_or_chats: the list of snaps or chats
+    :return: the days the top receiver of the list of snaps or chats received at least one snap or chat
+    """
+    top_receiver_snaps_or_chats = filtering.get_by_top_receiver(snaps_or_chats)
+    days_top_receiver_received = {
+        snap.timestamp.date() for snap in top_receiver_snaps_or_chats
+    }
     return sorted(list(days_top_receiver_received))
