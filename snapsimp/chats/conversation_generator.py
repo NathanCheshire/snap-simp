@@ -1,10 +1,18 @@
 from typing import List
 from chats.snapchat_chat_conversation import SnapchatChatConversation
-from snapsimp.chats.chat import Chat
-from snaps.filtering import get_by_receiving_user, get_by_sending_user
+from chats.chat import Chat
+from snaps.filtering import (
+    get_by_receiving_user,
+    get_by_sending_user,
+    get_by_top_receiver,
+    get_by_top_sender,
+    get_top_receiver_username,
+    get_top_sender_username,
+)
 
 
-def generate_conversation_with(their_name: str, chats: List[Chat]
+def generate_conversation_with(
+    their_name: str, chats: List[Chat]
 ) -> SnapchatChatConversation:
     """
     Generates a snapchat chat conversation between the two snapchatters.
@@ -13,40 +21,52 @@ def generate_conversation_with(their_name: str, chats: List[Chat]
     :param chats: the list of all sent and received chats
     :return: a snapchat chat conversation object representing the conversation between you and the other person
     """
-    
+
     chats_to_them = get_by_receiving_user(chats, their_name)
     chats_from_them = get_by_sending_user(chats, their_name)
-    all_chats = get_by_sending_user + chats_to_them + chats_from_them
-    
+    all_chats = chats_to_them + chats_from_them
+
     return SnapchatChatConversation(all_chats)
 
 
 def generate_conversation_with_top_sender(
-    my_name: str,
-    chats: List[Chat],
+    sent_chats: List[Chat],
+    received_chats: List[Chat],
 ) -> SnapchatChatConversation:
     """
     Generates a snapchat chat conversation between you and ther person who sends you the most chats.
 
-    :param my_name: your snapchat username
-    :param chats: the list of all sent and received chats, this list will be used for extracting the specifc chats we are concerned with for this method
+    :param sent_chats: the chats you've sent
+    :param received_chats: the chats you've received
     :return: a snapchat chat conversation between you and ther person who sends you the most chats
     """
-    pass
+
+    top_sender = get_top_sender_username(received_chats)
+    chats_from_them = get_by_sending_user(received_chats, top_sender)
+    chats_to_them = get_by_receiving_user(received_chats)
+    all_chats = chats_to_them + chats_from_them
+
+    return SnapchatChatConversation(all_chats)
 
 
 def generate_conversation_with_top_receiver(
-    my_name: str,
-    chats: List[Chat],
+    sent_chats: List[Chat],
+    received_chats: List[Chat],
 ) -> SnapchatChatConversation:
     """
     Generates a snapchat chat conversation between you and ther person who receives the most chats from you.
 
-    :param my_name: your snapchat username
-    :param chats: the list of all sent and received chats, this list will be used for extracting the specifc chats we are concerned with for this method
+    :param sent_chats: the chats you've sent
+    :param received_chats: the chats you've received
     :return: a snapchat chat conversation between you and ther person who receives the most chats from you
     """
-    pass
+
+    top_receiver = get_top_receiver_username(sent_chats)
+    chats_from_them = get_by_sending_user(received_chats, top_receiver)
+    chats_to_them = get_by_receiving_user(sent_chats, top_receiver)
+    all_chats = chats_to_them + chats_from_them
+
+    return SnapchatChatConversation(all_chats)
 
 
 def generate_conversations(

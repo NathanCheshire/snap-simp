@@ -11,7 +11,7 @@ from snaps.filtering import (
     get_by_top_sender,
     filter_snaps_by_type,
 )
-from chats.conversation_generator import generate_and_save_all_conversations, generate_conversation_with
+from chats.conversation_generator import generate_conversation_with_top_receiver
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="A parser for Snapchat data exports")
@@ -47,22 +47,8 @@ if __name__ == "__main__":
     )
     all_chats = received_chats + sent_chats
 
-    top_sender_to_me_snaps = get_by_top_sender(received_snaps)
-    top_receiver_from_me_snaps = get_by_top_receiver(sent_snaps)
-    top_sender_to_me_chats = get_by_top_sender(received_chats)
-    top_receiver_from_me_chats = get_by_top_receiver(sent_chats)
-
-    sent_snaps, sent_videos = filter_snaps_by_type(top_receiver_from_me_snaps)
-    received_snaps, received_videos = filter_snaps_by_type(top_sender_to_me_snaps)
-
-    our_snaps = top_sender_to_me_snaps + top_receiver_from_me_snaps
-    our_conversation = SnapchatSnapConversation(our_snaps)
-
-    our_chats = top_sender_to_me_chats + top_receiver_from_me_chats
-    our_chat_conversation = SnapchatChatConversation(our_chats)
-    our_chat_conversation.to_json("Her.json")
-
-    generate_conversation_with("darkneonshadows")
+    our_conversation = generate_conversation_with_top_receiver(sent_chats, received_chats)
+    our_conversation.to_json("Her.json")
     # generate_and_save_all_conversations(all_chats, "all-chat-conversations")
 
     print("End Program")
