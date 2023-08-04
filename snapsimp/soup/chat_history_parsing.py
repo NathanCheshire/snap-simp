@@ -37,43 +37,61 @@ def __parse_chat_history_table(
 
     rows = table.find_all(TableElements.TABLE_ROW.value)
 
-    current_chat_content = None
-
     for row in rows:
         columns = row.find_all(TableElements.TABLE_DATA_CELL.value)
+        len_cols = len(columns)
 
-        if len(columns) == 1 and columns[0].get("colspan") == "3":
-            current_chat_content = columns[0].get_text()
-
-            if chats and chats[-1].type == ChatType.TEXT:
-                chats[-1].content = current_chat_content
-
+        if len_cols == 0:
             continue
+        elif len_cols == 1:
+            previous_chat_text = columns[0].get_text()
+            previous_chat = chats[-1]
+            if len(previous_chat_text) and previous_chat.type == ChatType.TEXT:
+                previous_chat.text = previous_chat_text
+        elif len_cols == 3:
+            (
+                other_account_username,
+                chat_type,
+                timestamp,
+            ) = __extract_standard_chat_row_data(columns)
+            sender = __get_sender(chat_direction, my_name, other_account_username)
+            receiver = __get_receiver(chat_direction, my_name, other_account_username)
 
-        if len(columns) != len(ChatHistoryTableColumnIndicie.values()):
-            continue
-
-        other_account_username = columns[
-            ChatHistoryTableColumnIndicie.SENDER.value
-        ].get_text()
-        chat_type = (
-            ChatType.TEXT
-            if columns[ChatHistoryTableColumnIndicie.TYPE.value].get_text()
-            == ChatType.TEXT.value
-            else ChatType.MEDIA
-        )
-        timestamp = columns[ChatHistoryTableColumnIndicie.TIME_STAMP.value].get_text()
-
-        sender = __get_sender(chat_direction, my_name, other_account_username)
-        receiver = __get_receiver(chat_direction, my_name, other_account_username)
-
-        content = current_chat_content if current_chat_content is not None else ""
-
-        chat = Chat(sender, receiver, chat_type, content, timestamp)
-        chats.append(chat)
-        current_chat_content = None
+            chat = Chat(sender, receiver, chat_type, "", timestamp)
+            chats.append(chat)
+        else:
+            raise AssertionError(
+                f"Column length not supported, length={len_cols}, columns={columns}"
+            )
 
     return chats
+
+
+def __extract_standard_chat_row_data(columns) -> Tuple[str, ChatType, str]:
+    """
+    Extracts the sender, chat type, and timestamp of a standard chat row.
+
+    :param columns: the row's columns, expected to be of length 3
+    :return: the sender, chat type, and timestamp
+    """
+
+    if len(columns) != len(ChatHistoryTableColumnIndicie.values()):
+        raise AssertionError(
+            f"Invalid column length for standard chat row, length={len(columns)}, expected={len(ChatHistoryTableColumnIndicie.values())}"
+        )
+
+    other_account_username = columns[
+        ChatHistoryTableColumnIndicie.SENDER.value
+    ].get_text()
+    chat_type = (
+        ChatType.TEXT
+        if columns[ChatHistoryTableColumnIndicie.TYPE.value].get_text()
+        == ChatType.TEXT.value
+        else ChatType.MEDIA
+    )
+    timestamp = columns[ChatHistoryTableColumnIndicie.TIME_STAMP.value].get_text()
+
+    return other_account_username, chat_type, timestamp
 
 
 def __get_sender(chat_direction: __ChatDirection, my_name: str, other_name: str) -> str:

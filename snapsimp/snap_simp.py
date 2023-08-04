@@ -57,6 +57,6 @@ if __name__ == "__main__":
 
     our_chats = top_sender_to_me_chats + top_receiver_from_me_chats
     our_chat_conversation = SnapchatChatConversation(our_chats)
-    our_chat_conversation.to_json("her.json")
+    our_chat_conversation.to_json("Her.json")
 
     print("End Program")
