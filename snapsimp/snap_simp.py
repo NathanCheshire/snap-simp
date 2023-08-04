@@ -3,8 +3,13 @@ from soup.snap_history_parsing import extract_snap_history
 from soup.account_parsing import parse_all
 from soup.chat_history_parsing import extract_chat_history
 from chats.conversation_generator import generate_and_save_all_conversations
+from argparse import ArgumentParser
 
-if __name__ == "__main__":
+
+def parse_args() -> ArgumentParser:
+    """
+    Parses the command line arguments to this python program and returns an argparse instance.
+    """
     parser = argparse.ArgumentParser(description="A parser for Snapchat data exports")
     parser.add_argument(
         "-shf",
@@ -24,7 +29,12 @@ if __name__ == "__main__":
         help="The path to the Snapchat account HTML file",
         default="html/account.html",
     )
-    args = parser.parse_args()
+
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
 
     basic_user_info, device_information, device_history, login_history = parse_all(
         args.account_file
@@ -45,3 +55,7 @@ if __name__ == "__main__":
     )
 
     print("End Program")
+
+
+if __name__ == "__main__":
+    main()
