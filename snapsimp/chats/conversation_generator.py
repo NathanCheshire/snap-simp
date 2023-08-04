@@ -15,7 +15,7 @@ def generate_conversation_with(
     their_name: str, sent_chats: List[Chat], received_chats: List[Chat]
 ) -> SnapchatChatConversation:
     """
-    Generates a snapchat chat conversation between the two snapchatters.
+    Generates a snapchat chat conversation between you and the provided snapchatter.
 
     :param their_name: the other snapchatter's username
     :param sent_chats: the list of chats you've sent
@@ -119,7 +119,7 @@ def generate_and_save_all_conversations(
     if not os.path.exists(save_folder_path):
         os.makedirs(save_folder_path)
 
-    conversations = generate_conversations(sent_chats, received_chats)
+    conversations = generate_conversations(my_name, sent_chats, received_chats)
 
     for conversation in conversations:
         their_name = next(

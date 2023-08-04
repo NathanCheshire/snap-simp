@@ -39,11 +39,11 @@ class SnapchatChatConversation:
         :param sending_users: the set of users who sent chats
         :param receiving_users: the set of users who received chats
         """
-        if len(sending_users) != 2 or len(receiving_users) != 2:
+        if len(sending_users) > 2 or len(receiving_users) > 2:
             raise AssertionError(
-                "All sent and received chats must be from the same two users."
+                f"All sent and received chats must be from the same two users. sending={sending_users}, receiving={receiving_users}"
             )
-        if sending_users != receiving_users:
+        if len(sending_users.union(receiving_users)) > 2:
             raise AssertionError("Sending users and receiving users must be the same.")
 
     def get_earlist_chat_date(self) -> datetime:
