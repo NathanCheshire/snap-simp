@@ -1,4 +1,5 @@
 import argparse
+import json
 from snaps.snapchat_snap_conversation import SnapchatSnapConversation
 from chats.snapchat_chat_conversation import SnapchatChatConversation
 from chats.chat_type import ChatType
