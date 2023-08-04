@@ -122,12 +122,7 @@ def generate_and_save_all_conversations(
     conversations = generate_conversations(my_name, sent_chats, received_chats)
 
     for conversation in conversations:
-        their_name = next(
-            (
-                their_name
-                for their_name in conversation.get_users()
-                if their_name != my_name
-            ),
-            None,
-        )
-        conversation.to_json(os.path.join(save_folder_path, f"{their_name}.json"))
+        first_chat = conversation.chats[0]
+        users = [first_chat.sender, first_chat.receiver]
+        users.remove(my_name)
+        conversation.to_json(os.path.join(save_folder_path, f"{users[0]}.json"))
