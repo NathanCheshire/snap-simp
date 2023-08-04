@@ -28,7 +28,7 @@ class SnapchatChatConversation:
         self.__check_initialization_constraints(sending_users, receiving_users)
 
         self.chats = sorted(chats, key=lambda chat: chat.timestamp)
-        self.users = sending_users
+        self.users = sending_users.union(receiving_users)
 
     def __check_initialization_constraints(
         self, sending_users: Set[str], receiving_users: Set[str]

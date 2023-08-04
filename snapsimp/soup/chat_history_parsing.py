@@ -41,13 +41,13 @@ def __parse_chat_history_table(
         columns = row.find_all(TableElements.TABLE_DATA_CELL.value)
         len_cols = len(columns)
 
-        if len_cols == 0:
+        if not len_cols:
             continue
         elif len_cols == 1:
             previous_chat_text = columns[0].get_text()
             previous_chat = chats[-1]
             if len(previous_chat_text) and previous_chat.type == ChatType.TEXT:
-                previous_chat.text = previous_chat_text
+                previous_chat.text = previous_chat_text.strip()
         elif len_cols == 3:
             (
                 other_account_username,
