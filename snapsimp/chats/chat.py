@@ -1,6 +1,8 @@
 from datetime import datetime
+import json
 
 from chats.chat_type import ChatType
+from chats.chat_helpers import json_chat_encoder
 
 
 class Chat:
@@ -63,6 +65,23 @@ class Chat:
     @timestamp.setter
     def timestamp(self, timestamp):
         self._timestamp = timestamp
+
+    def to_json(self, file_path):
+        """
+        Saves the chat object to a JSON file.
+
+        :param file_path: the path to the JSON file
+        """
+        chat_dict = {
+            "sender": self.sender,
+            "receiver": self.receiver,
+            "type": self.type,
+            "text": self.text,
+            "timestamp": self.timestamp,
+        }
+
+        with open(file_path, "w") as f:
+            json.dump(chat_dict, f, default=json_chat_encoder, indent=4)
 
     def __repr__(self):
         return f"Chat(sender='{self.sender}', receiver='{self.receiver}', type={self.type}, timestamp='{self.timestamp}', text='{self.text}')"

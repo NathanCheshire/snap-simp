@@ -1,5 +1,5 @@
-from datetime import timedelta
-import datetime
+from datetime import timedelta, datetime
+import json
 from statistics import mean
 from typing import List, Set
 from collections import Counter
@@ -7,6 +7,7 @@ from collections import Counter
 from chats.chat import Chat
 from common.descriptive_stats import DescriptiveStatsTimedelta
 from chats.chat_type import ChatType
+from chats.chat_helpers import json_chat_encoder
 
 
 class SnapchatChatConversation:
@@ -250,6 +251,32 @@ class SnapchatChatConversation:
                 print(chat.timestamp, ': "', chat.text, '"')
             last_sender = chat.sender
             print()
+
+    def to_json(self, file_path):
+        """
+        Saves the chat conversation to a JSON file.
+
+        :param file_path: the path to the JSON file
+        """
+
+        chats_list = [
+            {
+                "sender": chat.sender,
+                "receiver": chat.receiver,
+                "type": chat.type,
+                "text": chat.text,
+                "timestamp": chat.timestamp,
+            }
+            for chat in self.chats
+        ]
+
+        conversation_dict = {
+            "users": list(self.users),
+            "chats": chats_list,
+        }
+
+        with open(file_path, "w") as f:
+            json.dump(conversation_dict, f, default=json_chat_encoder, indent=4)
 
     def __str__(self):
         return f"SnapchatChatConversation(users={self.users}, num_chats={len(self.chats)}, earliest_chat_date={self.get_earlist_chat_date()}, latest_chat_date={self.get_latest_chat_date()})"

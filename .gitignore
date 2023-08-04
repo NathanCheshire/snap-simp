@@ -3,3 +3,4 @@ snap-simp-venv/
 *.html
 *.DS_Store
 .vscode/
+*.json
