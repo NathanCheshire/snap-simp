@@ -8,6 +8,7 @@ from chats.chat import Chat
 from common.descriptive_stats import DescriptiveStatsTimedelta
 from chats.chat_type import ChatType
 from chats.chat_helpers import json_chat_encoder
+from common.json_constants import INDENT
 
 
 class SnapchatChatConversation:
@@ -276,7 +277,7 @@ class SnapchatChatConversation:
         }
 
         with open(file_path, "w") as f:
-            json.dump(conversation_dict, f, default=json_chat_encoder, indent=4)
+            json.dump(conversation_dict, f, default=json_chat_encoder, indent=INDENT)
 
     def __str__(self):
         return f"SnapchatChatConversation(users={self.users}, num_chats={len(self.chats)}, earliest_chat_date={self.get_earlist_chat_date()}, latest_chat_date={self.get_latest_chat_date()})"

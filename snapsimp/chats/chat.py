@@ -3,6 +3,7 @@ import json
 
 from chats.chat_type import ChatType
 from chats.chat_helpers import json_chat_encoder
+from common.json_constants import INDENT
 
 
 class Chat:
@@ -81,7 +82,7 @@ class Chat:
         }
 
         with open(file_path, "w") as f:
-            json.dump(chat_dict, f, default=json_chat_encoder, indent=4)
+            json.dump(chat_dict, f, default=json_chat_encoder, indent=INDENT)
 
     def __repr__(self):
         return f"Chat(sender='{self.sender}', receiver='{self.receiver}', type={self.type}, timestamp='{self.timestamp}', text='{self.text}')"
