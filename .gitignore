@@ -3,4 +3,5 @@ snap-simp-venv/
 *.html
 *.DS_Store
 .vscode/
-*.json
+*adows.json
+all-chat-conversations/*
