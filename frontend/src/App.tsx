@@ -1,20 +1,10 @@
-import {
-  Box,
-  CssBaseline,
-  ThemeProvider,
-  Typography,
-  createTheme,
-} from "@mui/material";
+import { Box, CssBaseline, ThemeProvider, createTheme } from "@mui/material";
+import SnapchatChatConversation from "./SnapchatChatConversation";
 import ourChatsJson from "./darkneonshadows.json";
-import ChatComponent from "./ChatMessage";
+import ChatComponent from "./ChatComponent";
 
 export default function App() {
   const ourConversation: SnapchatChatConversation = ourChatsJson;
-
-  enum ChatType {
-    MEDIA,
-    CHAT,
-  }
 
   /**
    * The MUI theme for this web app.
@@ -46,19 +36,6 @@ export default function App() {
     },
   });
 
-  interface SnapchatChat {
-    sender: string;
-    receiver: string;
-    type: string;
-    text: string;
-    timestamp: string;
-  }
-
-  interface SnapchatChatConversation {
-    users: String[];
-    chats: SnapchatChat[];
-  }
-
   function generateMessagesBox() {
     return (
       <ThemeProvider theme={theme}>
@@ -77,7 +54,11 @@ export default function App() {
               flexDirection: "column",
             }}
           >
-            <ChatComponent chats={ourConversation.chats} sendingUser="nathanvcheshire" />;
+            <ChatComponent
+              chats={ourConversation.chats}
+              sendingUser="nathanvcheshire"
+            />
+            ;
           </Box>
         </Box>
       </ThemeProvider>

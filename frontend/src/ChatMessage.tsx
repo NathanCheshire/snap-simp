@@ -1,25 +1,19 @@
-import React from "react";
-import { Box, Typography, Paper } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { formatDistanceToNow } from "date-fns";
+import SnapchatChat from "./SnapchatChat";
 
-interface ChatMessageProps {
-  message: {
-    sender: string;
-    receiver: string;
-    type: string;
-    text: string;
-    timestamp: string;
-  };
+export interface ChatMessageProps {
+  message: SnapchatChat;
   sendingUser: string;
 }
 
-const ChatMessage: React.FC<ChatMessageProps> = ({ message, sendingUser }) => {
+export function ChatMessage ({ message, sendingUser }: ChatMessageProps)  {
   const isSendingUser = message.sender === sendingUser;
 
   return (
     <Box
       display="flex"
-      paddingY='2px'
+      paddingY="2px"
       justifyContent={isSendingUser ? "flex-end" : "flex-start"}
     >
       <Box
@@ -31,7 +25,6 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, sendingUser }) => {
           color: isSendingUser ? "white" : "white",
         }}
       >
-       
         {message.type === "MEDIA" ? (
           <Typography variant="body1">[Media]</Typography>
         ) : (
@@ -47,35 +40,3 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, sendingUser }) => {
     </Box>
   );
 };
-
-interface ChatComponentProps {
-  chats: Array<{
-    sender: string;
-    receiver: string;
-    type: string;
-    text: string;
-    timestamp: string;
-  }>;
-  sendingUser: string;
-}
-
-const ChatComponent: React.FC<ChatComponentProps> = ({
-  chats,
-  sendingUser,
-}) => {
-  return (
-    <Box
-      style={{
-        backgroundColor: "#1C1C1E",
-        padding: "10px",
-        minHeight: "100vh",
-      }}
-    >
-      {chats.map((chat, index) => (
-        <ChatMessage key={index} message={chat} sendingUser={sendingUser} />
-      ))}
-    </Box>
-  );
-};
-
-export default ChatComponent;
