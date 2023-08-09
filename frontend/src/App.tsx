@@ -6,6 +6,7 @@ import {
   createTheme,
 } from "@mui/material";
 import ourChatsJson from "./darkneonshadows.json";
+import ChatComponent from "./ChatMessage";
 
 export default function App() {
   const ourConversation: SnapchatChatConversation = ourChatsJson;
@@ -76,17 +77,7 @@ export default function App() {
               flexDirection: "column",
             }}
           >
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                backgroundColor: "#5EBBF9",
-                borderRadius: "12px",
-                padding: "5px",
-              }}
-            >
-              <Typography>Lol that one was good</Typography>
-            </Box>
+            <ChatComponent chats={ourConversation.chats} sendingUser="nathanvcheshire" />;
           </Box>
         </Box>
       </ThemeProvider>
