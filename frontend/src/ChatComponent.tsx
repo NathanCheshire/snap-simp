@@ -43,12 +43,12 @@ export default function ChatComponent({
       <Box
         sx={{
           height: "calc(100vh - 80px)",
+          overflowY: "auto", // <-- This makes it scrollable
         }}
       >
         {chats.map((chat, index) => (
           <ChatMessage key={index} message={chat} sendingUser={sendingUser} />
         ))}
-        ß
       </Box>
     </Box>
   );

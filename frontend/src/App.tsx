@@ -58,7 +58,6 @@ export default function App() {
               chats={ourConversation.chats}
               sendingUser="nathanvcheshire"
             />
-            ;
           </Box>
         </Box>
       </ThemeProvider>
