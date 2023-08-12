@@ -51,11 +51,14 @@ export default function App() {
   const logo = (
     <Box
       sx={{
-        maxWidth: canShowLargeName ? "70px" : "50px",
-        maxHeight: canShowLargeName ? "70px" : "50px",
+        maxWidth: canShowLargeName ? "80px" : "60px",
+        maxHeight: canShowLargeName ? "80px" : "60px",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        backgroundColor: "#0f0f0f",
+        padding: "10px",
+        borderRadius: "12px",
         userSelect: "none",
         transform: "rotate(0deg)",
       }}
@@ -92,64 +95,61 @@ export default function App() {
     },
   };
 
-  function generateMessagesBox() {
-    return (
-      <ThemeProvider theme={theme}>
+  return (
+    <ThemeProvider theme={theme}>
+      <Box
+        sx={{
+          scroll: "none",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: "100vw",
+          height: "100vh",
+          background: "#252525",
+        }}
+      >
+        <CssBaseline />
         <Box
           sx={{
-            scroll: "none",
-            overflow: "hidden",
             display: "flex",
-            flexDirection: "column",
+            flexDirection: "row",
+            height: "90px",
+            width: "100%",
             alignItems: "center",
-            width: "100vw",
-            height: "100vh",
-            background: "#252525",
+            justifyContent: "space-between",
+            background: "#353535",
           }}
         >
-          <CssBaseline />
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              height: "90px",
-              width: "100%",
-              alignItems: "center",
-              justifyContent: "space-between",
-              background: "#353535",
-            }}
-          >
-            <Box paddingLeft="10px" flex={1}>
-              {logo}
-            </Box>
-            <Box
-              paddingRight="10px"
-              flex={1}
-              display="flex"
-              alignItems={"center"}
-              justifyContent={"center"}
-            >
-              <Typography
-                sx={{
-                  color: "#f0f0f0",
-                  fontWeight: "bold",
-                  fontFamily: "Oswald",
-                  fontSize: "44px",
-                }}
-              >
-                SnapSimp
-              </Typography>
-            </Box>
-            <Box flex={1} />
+          <Box paddingLeft="10px" flex={1}>
+            {logo}
           </Box>
-          {/* <ChatComponent
+          <Box
+            paddingRight="10px"
+            flex={1}
+            display="flex"
+            alignItems={"center"}
+            justifyContent={"center"}
+          >
+            <Typography
+              sx={{
+                color: "#f0f0f0",
+                fontWeight: "bold",
+                fontFamily: "Oswald",
+                fontSize: "44px",
+                userSelect: "none",
+              }}
+            >
+              SnapSimp
+            </Typography>
+          </Box>
+          <Box flex={1} />
+        </Box>
+        {/* <ChatComponent
             chats={ourConversation.chats}
             sendingUser="nathanvcheshire"
           /> */}
-        </Box>
-      </ThemeProvider>
-    );
-  }
-
-  return generateMessagesBox();
+      </Box>
+    </ThemeProvider>
+  );
 }
