@@ -1,11 +1,14 @@
-import { Box, CssBaseline, ThemeProvider, createTheme } from "@mui/material";
+import {
+  Box,
+  CssBaseline,
+  ThemeProvider,
+  Typography,
+  createTheme,
+} from "@mui/material";
 import SnapchatChatConversation from "./SnapchatChatConversation";
-import ourChatsJson from "./darkneonshadows.json";
 import ChatComponent from "./ChatComponent";
 
 export default function App() {
-  const ourConversation: SnapchatChatConversation = ourChatsJson;
-
   /**
    * The MUI theme for this web app.
    */
@@ -40,25 +43,59 @@ export default function App() {
     return (
       <ThemeProvider theme={theme}>
         <Box
-          className="custom-scrollbar"
           sx={{
-            background: "#EFEFEF",
             scroll: "none",
             overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            width: "100vw",
+            height: "100vh",
+            background: "#252525",
           }}
         >
           <CssBaseline />
           <Box
             sx={{
               display: "flex",
-              flexDirection: "column",
+              flexDirection: "row",
+              height: "80px",
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "space-between",
+              scrollBehavior: "auto",
+              overflowY: "scroll",
+              "&::-webkit-scrollbar": {
+                color: "#f0f0f0",
+                width: "8px",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "#f0f0f0",
+                borderRadius: "4px",
+              },
+              "&::-webkit-scrollbar-track": {
+                backgroundColor: "transparent",
+              },
+              background: "#353535",
             }}
           >
-            <ChatComponent
-              chats={ourConversation.chats}
-              sendingUser="nathanvcheshire"
-            />
+            <Box paddingLeft='10px'>
+              <Typography
+                sx={{
+                  color: "#f0f0f0",
+                  fontWeight: "bold",
+                  fontFamily: "Oswald",
+                  fontSize: "32px",
+                }}
+              >
+                SnapSimp - a Snapchat data analytics tool 
+              </Typography>
+            </Box>
           </Box>
+          {/* <ChatComponent
+            chats={ourConversation.chats}
+            sendingUser="nathanvcheshire"
+          /> */}
         </Box>
       </ThemeProvider>
     );
