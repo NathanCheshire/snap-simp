@@ -4,6 +4,7 @@ import {
   ThemeProvider,
   Typography,
   createTheme,
+  useMediaQuery,
 } from "@mui/material";
 import SnapchatChatConversation from "./SnapchatChatConversation";
 import ChatComponent from "./ChatComponent";
@@ -39,6 +40,58 @@ export default function App() {
     },
   });
 
+  /**
+   * Whether a larger font for the navbar left name component can be used.
+   */
+  const canShowLargeName = useMediaQuery("(min-width:850px)");
+
+  /**
+   * The navbar logo component.
+   */
+  const logo = (
+    <Box
+      sx={{
+        maxWidth: canShowLargeName ? "70px" : "50px",
+        maxHeight: canShowLargeName ? "70px" : "50px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        userSelect: "none",
+        transform: "rotate(0deg)",
+      }}
+    >
+      <img
+        alt="Nathan"
+        src={require("./Logo.png")}
+        style={{
+          width: "100%",
+          height: "auto",
+          display: "block",
+          maxWidth: "100%",
+          borderRadius: "20px",
+          transform: "scaleX(-1)",
+        }}
+      />
+    </Box>
+  );
+
+  // todo where to put this?
+  const scrollAttributes = {
+    scrollBehavior: "auto",
+    overflowY: "scroll",
+    "&::-webkit-scrollbar": {
+      color: "#f0f0f0",
+      width: "8px",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: "#f0f0f0",
+      borderRadius: "4px",
+    },
+    "&::-webkit-scrollbar-track": {
+      backgroundColor: "transparent",
+    },
+  };
+
   function generateMessagesBox() {
     return (
       <ThemeProvider theme={theme}>
@@ -59,38 +112,35 @@ export default function App() {
             sx={{
               display: "flex",
               flexDirection: "row",
-              height: "80px",
+              height: "90px",
               width: "100%",
               alignItems: "center",
               justifyContent: "space-between",
-              scrollBehavior: "auto",
-              overflowY: "scroll",
-              "&::-webkit-scrollbar": {
-                color: "#f0f0f0",
-                width: "8px",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "#f0f0f0",
-                borderRadius: "4px",
-              },
-              "&::-webkit-scrollbar-track": {
-                backgroundColor: "transparent",
-              },
               background: "#353535",
             }}
           >
-            <Box paddingLeft='10px'>
+            <Box paddingLeft="10px" flex={1}>
+              {logo}
+            </Box>
+            <Box
+              paddingRight="10px"
+              flex={1}
+              display="flex"
+              alignItems={"center"}
+              justifyContent={"center"}
+            >
               <Typography
                 sx={{
                   color: "#f0f0f0",
                   fontWeight: "bold",
                   fontFamily: "Oswald",
-                  fontSize: "32px",
+                  fontSize: "44px",
                 }}
               >
-                SnapSimp - a Snapchat data analytics tool 
+                SnapSimp
               </Typography>
             </Box>
+            <Box flex={1} />
           </Box>
           {/* <ChatComponent
             chats={ourConversation.chats}
