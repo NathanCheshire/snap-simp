@@ -1,5 +1,15 @@
-import { Box, Tooltip, Typography, IconButton, Button } from "@mui/material";
-import { SetStateAction, Dispatch, useRef } from "react";
+import {
+  Box,
+  Tooltip,
+  Typography,
+  IconButton,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
+import { SetStateAction, Dispatch, useRef, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 export interface ChooseFileRowProps {
@@ -18,6 +28,8 @@ export default function ChooseFileRow({
   setChosenFile,
 }: ChooseFileRowProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [removeConfirmationModalOpen, setRemoveConfirmationModalOpen] =
+    useState<boolean>(false);
 
   const onAccountDataInputChanged = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -44,8 +56,49 @@ export default function ChooseFileRow({
         alignItems: "center",
         justifyContent: "center",
         gap: "10px",
+        padding: "10px",
       }}
     >
+      <Dialog
+        open={removeConfirmationModalOpen}
+        onClose={() => {
+          setRemoveConfirmationModalOpen(false);
+        }}
+      >
+        <DialogTitle>Remove File Confirmation</DialogTitle>
+        <DialogContent>
+          Are you sure you want to remove this file? This action cannot be
+          undone.
+        </DialogContent>
+        <DialogActions>
+          <Button
+            sx={{
+              fontWeight: "bold",
+              textTransform: "none",
+            }}
+            variant="contained"
+            onClick={() => {
+              setRemoveConfirmationModalOpen(false);
+            }}
+          >
+            Keep
+          </Button>
+          <Button
+            sx={{
+              fontWeight: "bold",
+              textTransform: "none",
+            }}
+            color="error"
+            variant="contained"
+            onClick={() => {
+              setRemoveConfirmationModalOpen(false);
+              setChosenFile(null);
+            }}
+          >
+            Remove
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Tooltip title={buttonTooltip}>
         <Button
           onClick={() => {
@@ -81,7 +134,7 @@ export default function ChooseFileRow({
       {chosenFile?.name && (
         <IconButton
           onClick={() => {
-            setChosenFile(null);
+            setRemoveConfirmationModalOpen(true);
           }}
           sx={{
             color: "#f0f0f0",

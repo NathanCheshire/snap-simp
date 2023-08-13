@@ -32,6 +32,9 @@ export default function App() {
       background: {
         default: "#EFEFEF",
       },
+      error: {
+        main: "#DF5553",
+      },
     },
     components: {
       MuiCssBaseline: {
@@ -108,6 +111,10 @@ export default function App() {
 
   const [accountDataChosenFile, setAccountDataChosenFile] =
     useState<File | null>(null);
+  const [snapHistoryChosenFile, setSnapHistoryChosenFile] =
+    useState<File | null>(null);
+  const [chatHistoryChosenFile, setChatHistoryChosenFile] =
+    useState<File | null>(null);
 
   return (
     <ThemeProvider theme={theme}>
@@ -160,52 +167,10 @@ export default function App() {
           <Box flex={1} />
         </Box>
         <SeparatorComponent
-          text="Location Visualizer"
-          widthPercentage={90}
-          yPadding={20}
-        />
-        <SeparatorComponent
           text="JSON Export Tools"
           widthPercentage={90}
           yPadding={20}
         />
-        <Box
-          sx={{
-            padding: "20px",
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "20px",
-          }}
-        >
-          <Tooltip title="Export your snap_history.html data to JSON">
-            <Button
-              variant="contained"
-              sx={{
-                fontWeight: "bold",
-                fontSize: "16px",
-                textTransform: "none",
-                color: "#0f0f0f",
-              }}
-            >
-              Snap History
-            </Button>
-          </Tooltip>
-          <Tooltip title="Export your chat_history.html data to JSON">
-            <Button
-              variant="contained"
-              sx={{
-                fontWeight: "bold",
-                fontSize: "16px",
-                textTransform: "none",
-                color: "#0f0f0f",
-              }}
-            >
-              Chat History
-            </Button>
-          </Tooltip>
-        </Box>
         <ChooseFileRow
           buttonName={"Account Data"}
           buttonTooltip={"Export your account.html data to JSON"}
@@ -213,6 +178,21 @@ export default function App() {
           chosenFile={accountDataChosenFile}
           setChosenFile={setAccountDataChosenFile}
         />
+        <ChooseFileRow
+          buttonName={"Snap History"}
+          buttonTooltip={"Export your snap_history.html data to JSON"}
+          noChosenFileLabel={"No snap_history.html file chosen"}
+          chosenFile={snapHistoryChosenFile}
+          setChosenFile={setSnapHistoryChosenFile}
+        />
+        <ChooseFileRow
+          buttonName={"Chat History"}
+          buttonTooltip={"Export your chat_history.html data to JSON"}
+          noChosenFileLabel={"No chat_history.html file chosen"}
+          chosenFile={chatHistoryChosenFile}
+          setChosenFile={setChatHistoryChosenFile}
+        />
+
         {/* <ChatComponent
             chats={ourConversation.chats}
             sendingUser="nathanvcheshire"
