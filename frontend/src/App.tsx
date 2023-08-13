@@ -1,22 +1,33 @@
 import {
   Box,
+  Button,
   CssBaseline,
+  IconButton,
   ThemeProvider,
+  Tooltip,
   Typography,
   createTheme,
   useMediaQuery,
 } from "@mui/material";
-import SnapchatChatConversation from "./SnapchatChatConversation";
-import ChatComponent from "./ChatComponent";
+import { SetStateAction, useEffect, useRef, useState } from "react";
+import SeparatorComponent from "./SeparatorComponent";
+import ChooseFileRow from "./ChooseFileRow";
 
 export default function App() {
+  useEffect(() => {
+    document.title = "SnapSimp";
+  }, []);
+
   /**
    * The MUI theme for this web app.
    */
   const theme = createTheme({
     palette: {
       primary: {
-        main: "#5EBBF9",
+        main: "#33a9dc",
+      },
+      secondary: {
+        main: "#66bee5",
       },
       background: {
         default: "#EFEFEF",
@@ -65,7 +76,7 @@ export default function App() {
     >
       <img
         alt="Nathan"
-        src={require("./Logo.png")}
+        src={require("./assets/Logo.png")}
         style={{
           width: "100%",
           height: "auto",
@@ -95,6 +106,9 @@ export default function App() {
     },
   };
 
+  const [accountDataChosenFile, setAccountDataChosenFile] =
+    useState<File | null>(null);
+
   return (
     <ThemeProvider theme={theme}>
       <Box
@@ -106,7 +120,7 @@ export default function App() {
           alignItems: "center",
           width: "100vw",
           height: "100vh",
-          background: "#252525",
+          background: "#151515",
         }}
       >
         <CssBaseline />
@@ -118,7 +132,7 @@ export default function App() {
             width: "100%",
             alignItems: "center",
             justifyContent: "space-between",
-            background: "#353535",
+            background: "#202020",
           }}
         >
           <Box paddingLeft="10px" flex={1}>
@@ -135,8 +149,8 @@ export default function App() {
               sx={{
                 color: "#f0f0f0",
                 fontWeight: "bold",
-                fontFamily: "Oswald",
-                fontSize: "44px",
+                fontFamily: "Teko",
+                fontSize: "58px",
                 userSelect: "none",
               }}
             >
@@ -145,6 +159,60 @@ export default function App() {
           </Box>
           <Box flex={1} />
         </Box>
+        <SeparatorComponent
+          text="Location Visualizer"
+          widthPercentage={90}
+          yPadding={20}
+        />
+        <SeparatorComponent
+          text="JSON Export Tools"
+          widthPercentage={90}
+          yPadding={20}
+        />
+        <Box
+          sx={{
+            padding: "20px",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "20px",
+          }}
+        >
+          <Tooltip title="Export your snap_history.html data to JSON">
+            <Button
+              variant="contained"
+              sx={{
+                fontWeight: "bold",
+                fontSize: "16px",
+                textTransform: "none",
+                color: "#0f0f0f",
+              }}
+            >
+              Snap History
+            </Button>
+          </Tooltip>
+          <Tooltip title="Export your chat_history.html data to JSON">
+            <Button
+              variant="contained"
+              sx={{
+                fontWeight: "bold",
+                fontSize: "16px",
+                textTransform: "none",
+                color: "#0f0f0f",
+              }}
+            >
+              Chat History
+            </Button>
+          </Tooltip>
+        </Box>
+        <ChooseFileRow
+          buttonName={"Account Data"}
+          buttonTooltip={"Export your account.html data to JSON"}
+          noChosenFileLabel={"No account.html file chosen"}
+          chosenFile={accountDataChosenFile}
+          setChosenFile={setAccountDataChosenFile}
+        />
         {/* <ChatComponent
             chats={ourConversation.chats}
             sendingUser="nathanvcheshire"
