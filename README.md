@@ -40,7 +40,7 @@ I already said this in the `Who` section, but I'll repeat it for those who are d
 
 ### Why
 
-I wanted to do some data visualization stuff and see statistics about my snaps. In particular, I happen to video the person at the top of my best friends list A LOT so I thought it might be cool to generate some statistics which is why you can even generate a ratio for image to video snaps and text to media chats.
+I wanted to do some data visualization stuff and see statistics about my snaps.
 
 ### How
 
@@ -48,4 +48,4 @@ By the power of snakes, Python 3.11, ya boi Guido van Rossum, decades of compute
 
 ### Credits and Thanks
 
-Thanks to Nate Cheshire for making this. You're welcome, thanks for thinking of me when using my tool. No problem, Nate. I'd also like to dedicate the existence of this tool to you, you know who you are.
+Thanks to Nate Cheshire for making this. You're welcome, thanks for thinking of me when using my tool. No problem, Nate.
